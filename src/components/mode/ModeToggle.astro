@@ -1,7 +1,7 @@
 <dark-light-toggle class="inline-flex items-center">
   <button
     title="Toggle dark & light mode"
-    class="group text-muted hover:border-border-subtle hover:bg-card-hover hover:text-title flex size-7 items-center justify-center border border-transparent transition-all duration-200 active:scale-95"
+    class="group text-muted hover:border-border-subtle hover:bg-card-hover hover:text-title flex size-7 items-center justify-center border border-transparent transition-[color,background-color,border-color,scale] duration-200 active:scale-90"
     aria-label="Toggle dark & light mode"
   >
     <span
@@ -37,6 +37,13 @@
                 "aria-label",
                 newMode === "light" ? "切换至深色主题" : "切换至浅色主题",
               );
+              // 图标切换时旋入，避免月亮/太阳硬切
+              if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+                toggle.querySelector(".iconify")?.animate(
+                  // 只给起始帧：结束于元素当前值（悬停时为 rotate-12），不会回弹跳变
+                  [{ rotate: "-90deg", scale: "0.5", opacity: 0, offset: 0 }],
+                  { duration: 420, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+                );
             });
         };
 

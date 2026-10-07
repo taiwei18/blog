@@ -5,6 +5,8 @@ import '@fontsource/geist-sans/latin-500.css'
 import '@fontsource/geist-sans/latin-600.css'
 import '@fontsource/geist-mono/latin-400.css'
 import '@fontsource/newsreader/latin-400-italic.css'
+import geistSans400 from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url'
+import geistSans500 from '@fontsource/geist-sans/files/geist-sans-latin-500-normal.woff2?url'
 
 import AmbientBackground from '@/components/AmbientBackground.astro'
 import Motion from '@/components/Motion.astro'
@@ -82,6 +84,20 @@ const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredData
 <html lang={config.locale} class={config.colorScheme || 'scheme-mono'}>
   <head>
     <meta charset="utf-8" />
+    <!-- 首帧前标记可执行入场动效，配合 main.css 先隐藏入场元素，避免内容闪现后再淡入 -->
+    <script is:inline>
+      ;(() => {
+        if (window.__motionReady) return
+        window.__motionReady = true
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+        const apply = () => document.documentElement.classList.toggle('motion-ready', !reduced.matches)
+        apply()
+        // 页面切换时 Astro 会用新文档覆盖 <html> 的属性，需要在新页面渲染前重新标记
+        document.addEventListener('astro:after-swap', apply)
+      })()
+    </script>
+    <link rel="preload" href={geistSans400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistSans500} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />

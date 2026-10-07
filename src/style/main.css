@@ -56,6 +56,13 @@
     outline-offset: 4px;
   }
 
+  /* 移动端点击不显示系统灰色高亮块，按压反馈由各控件自身负责 */
+  a,
+  button,
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   img[data-img-embed=""],
   img[data-img-embed="true"] {
     border-radius: 2px;
@@ -164,14 +171,36 @@ dropdown-parent[data-open='true'] > button {
   opacity: 1;
 }
 
-/* Global interaction and entrance system */
-@keyframes signal-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.heading-link.is-copied {
+  animation: anchor-pop 360ms var(--ease-surface);
 }
 
-.page-content {
-  animation: signal-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes anchor-pop {
+  0% { transform: scale(0.6); opacity: 0.4; }
+  60% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* 触屏设备无 hover，锚点常驻淡显，便于点按复制 */
+@media (hover: none) {
+  .heading-link {
+    opacity: 0.45 !important;
+  }
+}
+
+/* Global interaction and entrance system */
+/*
+ * 入场元素在首帧前就隐藏（.motion-ready 由 <head> 内联脚本在允许动效时添加），
+ * 由 Motion.astro 打上 data-shown 后接管动画，避免"先显示 → 被隐藏 → 再淡入"的闪烁。
+ * 脚本若未能运行，2.5 秒后由 motion-failsafe 兜底显示。
+ */
+.motion-ready :is([data-entrance], [data-title-line], [data-reveal]):not([data-shown]) {
+  opacity: 0;
+  animation: motion-failsafe 0s linear 2.5s forwards;
+}
+
+@keyframes motion-failsafe {
+  to { opacity: 1; }
 }
 
 .interactive-underline {
@@ -307,39 +336,26 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   pointer-events: none;
 }
 
+/* 三层递进模糊：每层 backdrop-filter 在滚动的每一帧都要重新采样背后内容，层数直接决定滚动开销 */
 .progressive-blur-shelf .blur-step-1 {
-  -webkit-backdrop-filter: blur(1px);
-  backdrop-filter: blur(1px);
-  mask-image: linear-gradient(to bottom, black 0%, black 15%, transparent 35%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 15%, transparent 35%);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to bottom, black 0%, black 25%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 25%, transparent 50%);
 }
 
 .progressive-blur-shelf .blur-step-2 {
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  mask-image: linear-gradient(to bottom, black 10%, black 30%, transparent 50%);
-  -webkit-mask-image: linear-gradient(to bottom, black 10%, black 30%, transparent 50%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  mask-image: linear-gradient(to bottom, black 20%, black 45%, transparent 75%);
+  -webkit-mask-image: linear-gradient(to bottom, black 20%, black 45%, transparent 75%);
 }
 
 .progressive-blur-shelf .blur-step-3 {
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  mask-image: linear-gradient(to bottom, black 25%, black 45%, transparent 68%);
-  -webkit-mask-image: linear-gradient(to bottom, black 25%, black 45%, transparent 68%);
-}
-
-.progressive-blur-shelf .blur-step-4 {
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  mask-image: linear-gradient(to bottom, black 40%, black 60%, transparent 85%);
-  -webkit-mask-image: linear-gradient(to bottom, black 40%, black 60%, transparent 85%);
-}
-
-.progressive-blur-shelf .blur-step-5 {
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  mask-image: linear-gradient(to bottom, black 55%, black 75%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, black 75%, transparent 100%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  mask-image: linear-gradient(to bottom, black 45%, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 45%, black 70%, transparent 100%);
 }
 
 .progressive-blur-shelf .blur-gradient {
@@ -525,10 +541,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   background: var(--card-hover);
 }
 
-.nav-mode-toggle:active {
-  transform: scale(0.92);
-}
-
 .studio-hamburger {
   display: flex;
   width: 17px;
@@ -593,6 +605,24 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   grid-template-rows: 1fr;
 }
 
+/* 抽屉内容随展开依次浮现；收起时立即淡出，不拖尾 */
+.drawer-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.studio-drawer[data-open="true"] .drawer-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 320ms ease,
+    transform 480ms var(--ease-surface);
+  transition-delay: calc(90ms + var(--i, 0) * 35ms);
+}
+
 .drawer-caption {
   font-family: var(--font-mono);
   font-size: 0.625rem;
@@ -611,6 +641,17 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
     font-size: 1.75rem;
     line-height: 1.06;
     letter-spacing: -0.045em;
+  }
+}
+
+.drawer-main-link > span:first-child {
+  display: inline-block;
+  transition: transform 320ms var(--ease-surface);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .drawer-main-link:hover > span:first-child {
+    transform: translateX(6px);
   }
 }
 
@@ -633,6 +674,13 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 .drawer-main-link:is(:hover, :focus-visible)::after {
   opacity: 0.58;
   transform: translate(0, 0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* 箭头跟随标题右移，保持间距 */
+  .drawer-main-link:hover::after {
+    transform: translate(6px, 0);
+  }
 }
 
 .drawer-small-link {

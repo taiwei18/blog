@@ -13,7 +13,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
 <PageLayout {frontmatter}>
   <div class="not-prose about-container flex flex-col gap-12 sm:gap-16">
     <!-- Hero Title & Identity -->
-    <section data-about-hero class="flex flex-col gap-5 pt-2">
+    <section data-about-hero data-entrance class="flex flex-col gap-5 pt-2">
       <div class="flex flex-col gap-4">
         <h1 class="flex flex-wrap items-baseline gap-3 text-4xl sm:text-6xl font-semibold tracking-[-0.05em] text-title">
           <span id="scramble-name" class="cursor-default select-none font-sans">TAIWEI</span>
@@ -37,7 +37,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
         <span class="text-muted font-mono text-xs uppercase tracking-wider">Axioms</span>
       </div>
 
-      <div data-spotlight class="spotlight-card p-6 sm:p-10 flex flex-col gap-8">
+      <div data-spotlight data-entrance data-entrance-order="1" class="spotlight-card p-6 sm:p-10 flex flex-col gap-8">
         <div class="flex items-center justify-between border-b border-border-subtle pb-4 font-mono text-xs text-muted">
           <span class="text-accent uppercase tracking-wider font-medium">DESIGN & SYSTEM PRINCIPLES</span>
           <span class="text-faint font-mono text-xs">CORE</span>
@@ -93,7 +93,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
         <span class="text-muted font-mono text-xs uppercase tracking-wider">Stack & Tools</span>
       </div>
 
-      <div data-spotlight class="spotlight-card p-6 sm:p-10 flex flex-col gap-8">
+      <div data-spotlight data-entrance data-entrance-order="2" class="spotlight-card p-6 sm:p-10 flex flex-col gap-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
           <!-- Column 1: Frontend Architecture -->
           <div class="flex flex-col justify-between gap-5">
@@ -141,7 +141,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
         <span class="text-muted font-mono text-xs uppercase tracking-wider">Engineering Notes</span>
       </div>
 
-      <div class="terminal-window p-5 sm:p-8 flex flex-col gap-5">
+      <div data-entrance data-entrance-order="3" class="terminal-window p-5 sm:p-8 flex flex-col gap-5">
         <!-- Titlebar & Tabs -->
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4">
           <div class="flex items-center gap-2 font-mono text-xs text-muted">
@@ -205,8 +205,6 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
 </PageLayout>
 
 <script>
-  import { gsap } from 'gsap'
-
   let cleanup = () => {}
 
   const setupAboutInteractions = () => {
@@ -256,21 +254,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
       nameEl.addEventListener('mouseenter', () => scramble(nameEl, nameText, 0.6), { signal })
     }
 
-    // 3. Spotlight effect following mouse on cards
-    const spotlightCards = document.querySelectorAll<HTMLElement>('[data-spotlight]')
-    spotlightCards.forEach((card) => {
-      card.addEventListener('pointermove', (event) => {
-        const rect = card.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        card.style.setProperty('--mouse-x', `${x}px`)
-        card.style.setProperty('--mouse-y', `${y}px`)
-      }, { signal })
-      card.addEventListener('pointerleave', () => {
-        card.style.removeProperty('--mouse-x')
-        card.style.removeProperty('--mouse-y')
-      }, { signal })
-    })
+    // 3. Spotlight 指针追踪由全局 Motion.astro 统一处理
 
     // 4. Terminal Tabs Switching
     const tabs = document.querySelectorAll<HTMLButtonElement>('.terminal-tab')
@@ -297,18 +281,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
       }, { signal })
     })
 
-    // 5. Entrance GSAP Animation Sequence
-    if (!reduced.matches) {
-      const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
-      timeline
-        .fromTo('[data-about-hero]', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6 })
-        .fromTo('.spotlight-card', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, stagger: 0.1 }, '-=0.3')
-        .fromTo('.terminal-window', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.2')
-
-      signal.addEventListener('abort', () => {
-        timeline.kill()
-      })
-    }
+    // 5. 入场动画由全局 Motion.astro 通过 data-entrance 统一处理
 
     cleanup = () => {
       controller.abort()
