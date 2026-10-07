@@ -1,120 +1,91 @@
 <script>
   import { gsap } from 'gsap'
 
+  // 入场元素在首帧前已由 main.css 的 .motion-ready 规则隐藏；
+  // 这里负责把它们放出来，并在开始动画的同一帧打上 data-shown，CSS 便不再隐藏它们。
+  const HIDDEN = '[data-entrance], [data-title-line], [data-reveal]'
+
   let cleanup = () => {}
+  let activeBody: HTMLElement | null = null
+
+  const markShown = (elements: Element[]) => {
+    for (const element of elements) element.setAttribute('data-shown', '')
+  }
 
   const setupMotion = () => {
+    // 首次进入时脚本会立即运行一次，随后 window.load 又会触发 astro:page-load；
+    // 同一个页面只初始化一次，否则已播完的入场会被重置重播。
+    if (activeBody === document.body) return
+    activeBody = document.body
+
     cleanup()
     const media = gsap.matchMedia()
 
     media.add('(prefers-reduced-motion: no-preference)', () => {
       const controller = new AbortController()
       const { signal } = controller
-      const seen = new WeakSet<Element>()
       const activeTweens = new Set<gsap.core.Tween | gsap.core.Timeline>()
-      const reset = { clearProps: 'transform,opacity' }
+      // lazy: false：起始帧同步写入，而不是推迟到 GSAP 下一次 tick，保证与 data-shown 同帧生效
+      const reset = { clearProps: 'transform,opacity', lazy: false }
+      const viewportBottom = window.innerHeight
 
-      // 1. Coordinated entrance sequence for page headers & key landmarks
+      // 1. 首屏入场：标题、页面头部等关键区块依次浮现
       const entrances = gsap.utils.toArray<HTMLElement>('[data-entrance]')
       const lines = gsap.utils.toArray<HTMLElement>('[data-title-line]')
       const entranceTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
       activeTweens.add(entranceTimeline)
 
-      if (entrances.length) {
-        // Sort entrances if data-entrance-order is provided
-        entrances.sort((a, b) => {
-          const orderA = Number(a.dataset.entranceOrder ?? 0)
-          const orderB = Number(b.dataset.entranceOrder ?? 0)
-          return orderA - orderB
-        })
+      entrances.sort(
+        (a, b) => Number(a.dataset.entranceOrder ?? 0) - Number(b.dataset.entranceOrder ?? 0)
+      )
 
+      if (entrances.length) {
+        markShown(entrances)
         entranceTimeline.fromTo(
           entrances,
-          { y: 12, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.65,
-            stagger: 0.06,
-            ...reset
-          },
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ...reset },
           0
         )
       }
 
       if (lines.length) {
+        markShown(lines)
         entranceTimeline.fromTo(
           lines,
           { yPercent: 105, opacity: 0 },
-          {
-            yPercent: 0,
-            opacity: 1,
-            stagger: 0.1,
-            duration: 0.75,
-            ...reset
-          },
+          { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.08, ...reset },
           0.04
         )
       }
 
-      // 2. Staggered reveal for articles, cards & milestones on scroll
-      const observer = new IntersectionObserver(
-        (entries) => {
-          let staggerIndex = 0
-          for (const entry of entries) {
-            if (!entry.isIntersecting || seen.has(entry.target)) continue
-            seen.add(entry.target)
-            observer.unobserve(entry.target)
+      // 2. 列表区块：只有首屏可见的部分接在入场后依次浮现；
+      //    首屏以下直接显示，滚动时内容已就位，不会再闪烁或迟到。
+      const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal]')
+      const inView = reveals.filter((el) => el.getBoundingClientRect().top < viewportBottom)
+      markShown(reveals)
 
-            const delay = Math.min(staggerIndex++ * 0.06, 0.24)
-            const target = entry.target as HTMLElement
+      inView.forEach((target, index) => {
+        const delay = 0.1 + Math.min(index * 0.04, 0.24)
+        const childItems = target.querySelectorAll<HTMLElement>('[data-reveal-child]')
+        const tween = childItems.length
+          ? gsap.fromTo(
+              childItems,
+              { y: 8, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.45, stagger: 0.03, delay, ease: 'power3.out', ...reset }
+            )
+          : gsap.fromTo(
+              target,
+              { y: 10, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.5, delay, ease: 'power3.out', ...reset }
+            )
+        tween.eventCallback('onComplete', () => {
+          activeTweens.delete(tween)
+        })
+        activeTweens.add(tween)
+      })
 
-            // Check if element has child items to stagger
-            const childItems = target.querySelectorAll<HTMLElement>('[data-reveal-child]')
-            if (childItems.length > 0) {
-              const tween = gsap.fromTo(
-                childItems,
-                { y: 10, opacity: 0 },
-                {
-                  y: 0,
-                  opacity: 1,
-                  duration: 0.55,
-                  stagger: 0.04,
-                  delay,
-                  ease: 'power3.out',
-                  ...reset,
-                  onComplete: () => {
-                    activeTweens.delete(tween)
-                  }
-                }
-              )
-              activeTweens.add(tween)
-            } else {
-              const tween = gsap.fromTo(
-                target,
-                { y: 14, opacity: 0 },
-                {
-                  y: 0,
-                  opacity: 1,
-                  duration: 0.65,
-                  delay,
-                  ease: 'power3.out',
-                  ...reset,
-                  onComplete: () => {
-                    activeTweens.delete(tween)
-                  }
-                }
-              )
-              activeTweens.add(tween)
-            }
-          }
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-      )
-
-      document.querySelectorAll('[data-reveal]').forEach((element) => observer.observe(element))
-
-      // 4. Subtle Number Counter Reveal
+      // 3. Subtle Number Counter Reveal
       const counterObserver = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -144,7 +115,7 @@
       )
       document.querySelectorAll('[data-counter-target]').forEach((el) => counterObserver.observe(el))
 
-      // 5. Spotlight card pointer tracking with smooth interpolation
+      // 4. Spotlight card pointer tracking
       const spotlightCards = document.querySelectorAll<HTMLElement>('[data-spotlight]')
       spotlightCards.forEach((card) => {
         card.addEventListener(
@@ -168,8 +139,11 @@
         )
       })
 
-      // 6. Restrained Magnetic Micro-interaction on buttons & interactive tags
-      const magneticElements = document.querySelectorAll<HTMLElement>('[data-magnetic]')
+      // 5. Restrained Magnetic Micro-interaction on buttons & interactive tags
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      const magneticElements = finePointer
+        ? document.querySelectorAll<HTMLElement>('[data-magnetic]')
+        : []
       magneticElements.forEach((el) => {
         const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'power3.out' })
         const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3.out' })
@@ -199,24 +173,19 @@
         )
       })
 
-      // 7. Focus accessibility bypass
+      // 6. Focus accessibility bypass：键盘聚焦时立即完成入场，避免焦点落在透明元素上
       document.addEventListener(
         'focusin',
         (event) => {
           const target = event.target as HTMLElement
           if (target.closest('section, main')) entranceTimeline.progress(1)
           const element = target.closest('[data-reveal]')
-          if (element) {
-            seen.add(element)
-            observer.unobserve(element)
-            gsap.set(element, { y: 0, opacity: 1, clearProps: 'transform,opacity' })
-          }
+          if (element) gsap.set(element, { y: 0, opacity: 1, clearProps: 'transform,opacity' })
         },
         { signal }
       )
 
       return () => {
-        observer.disconnect()
         counterObserver.disconnect()
         controller.abort()
         activeTweens.forEach((t) => t.kill())
@@ -224,9 +193,18 @@
       }
     })
 
+    // 减少动态效果时 .motion-ready 不会被添加，但仍兜底放出所有元素
+    markShown(Array.from(document.querySelectorAll(HIDDEN)))
+
     cleanup = () => media.revert()
   }
 
+  // 不等 window.load（图片、字体全部就绪）才开始，脚本执行时即启动入场
+  setupMotion()
   document.addEventListener('astro:page-load', setupMotion)
-  document.addEventListener('astro:before-swap', () => cleanup())
+  document.addEventListener('astro:before-swap', () => {
+    cleanup()
+    cleanup = () => {}
+    activeBody = null
+  })
 </script>

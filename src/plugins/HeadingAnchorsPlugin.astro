@@ -2,7 +2,7 @@
 
 ---
 
-<div id="heading-toast" class="anchor-toast rounded-full border border-accent/30 bg-accent-bg/95 px-4 py-1.5 text-xs font-medium text-accent backdrop-blur-md shadow-lg shadow-black/10">
+<div id="heading-toast" class="anchor-toast backdrop-blur-md" role="status" aria-live="polite">
   已复制章节链接
 </div>
 
@@ -27,7 +27,7 @@
       const link = document.createElement('a')
       link.innerText = '#'
       link.className =
-        'heading-link ml-2 inline-block text-accent/60 opacity-0 transition-all duration-200 ease-out hover:text-accent hover:scale-110 group-hover:opacity-100 no-underline cursor-pointer select-none'
+        'heading-link ml-2 inline-block text-accent/60 opacity-0 transition-[opacity,color] duration-200 ease-out hover:text-accent group-hover:opacity-100 focus-visible:opacity-100 no-underline cursor-pointer select-none'
       link.href = '#' + heading.id
       link.ariaLabel = `复制 ${heading.textContent} 锚点链接`
       link.title = '复制章节链接'
@@ -39,10 +39,13 @@
           await navigator.clipboard.writeText(url)
           history.pushState(null, '', '#' + heading.id)
           link.innerText = '✓'
-          link.classList.add('text-accent')
+          link.classList.remove('is-copied')
+          void link.offsetWidth
+          link.classList.add('text-accent', 'is-copied')
           showToast()
           setTimeout(() => {
             link.innerText = '#'
+            link.classList.remove('text-accent', 'is-copied')
           }, 1500)
         } catch (_) {
           window.location.hash = heading.id

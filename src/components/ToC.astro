@@ -74,7 +74,7 @@ const processedHeadings = filteredHeadings.map((h) => {
               <a
                 href={`#${h.slug}`}
                 data-toc-slug={h.slug}
-                class="toc-aside-link block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed text-muted transition-all duration-150 hover:bg-surface-hover hover:text-title no-underline line-clamp-2"
+                class="toc-aside-link block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed text-muted transition-[color,background-color,box-shadow] duration-200 hover:bg-surface-hover hover:text-title no-underline line-clamp-2"
               >
                 {h.text}
               </a>
@@ -87,10 +87,16 @@ const processedHeadings = filteredHeadings.map((h) => {
 }
 
 <style is:global>
+  .toc-aside-link {
+    box-shadow: inset 0 0 0 transparent;
+  }
+
+  /* 左侧细条随激活项渐入，配合背景色过渡，滚动时高亮不再硬跳 */
   .toc-aside-link.is-active {
     color: var(--accent) !important;
     font-weight: 500 !important;
     background-color: color-mix(in oklab, var(--accent) 10%, transparent) !important;
+    box-shadow: inset 2px 0 0 var(--accent);
   }
 </style>
 
@@ -135,7 +141,16 @@ const processedHeadings = filteredHeadings.map((h) => {
       })
     }
 
-    window.addEventListener('scroll', updateActiveHeading, {
+    let frame = 0
+    const scheduleUpdate = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        updateActiveHeading()
+      })
+    }
+
+    window.addEventListener('scroll', scheduleUpdate, {
       passive: true,
       signal
     })
@@ -143,6 +158,7 @@ const processedHeadings = filteredHeadings.map((h) => {
 
     return () => {
       controller.abort()
+      cancelAnimationFrame(frame)
     }
   }
 
