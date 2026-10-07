@@ -58,7 +58,6 @@ const isActive = (item: NavItemType) =>
       <a
         href="/"
         class="brand-link group text-title flex shrink-0 items-center gap-2.5 focus-visible:outline-none"
-        transition:name="branding"
         aria-label={`${config.title} 首页`}
       >
         <svg
@@ -84,14 +83,16 @@ const isActive = (item: NavItemType) =>
 
       <div class="flex min-w-0 items-center gap-1 sm:gap-2">
         <div class="nav-desktop-cluster hidden items-center md:flex">
-          <div class="nav-primary flex items-center">
+          <div class="nav-primary relative flex items-center">
+            <span class="nav-indicator" data-visible="false" aria-hidden="true"
+            ></span>
             {
               desktopNavLinks.map((item) => (
                 <a
                   href={item.href}
                   aria-current={isActive(item) ? 'page' : undefined}
                   class:list={[
-                    'nav-primary-link relative block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-200 focus-visible:outline-none',
+                    'nav-primary-link relative z-[1] block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-200 focus-visible:outline-none',
                     isActive(item)
                       ? 'text-title'
                       : 'text-muted hover:text-title'
@@ -332,6 +333,79 @@ const isActive = (item: NavItemType) =>
       link.addEventListener('click', () => setOpen(false), { signal })
     })
 
+    // 液态指示条：左右两条边各走一条弹簧，前沿快、后沿慢，移动时被拉长再回弹
+    const navPrimary = island.querySelector<HTMLElement>('.nav-primary')
+    const indicator = navPrimary?.querySelector<HTMLElement>('.nav-indicator')
+    const navLinks = Array.from(
+      navPrimary?.querySelectorAll<HTMLAnchorElement>('.nav-primary-link') ?? []
+    )
+    const activeLink = navLinks.find(
+      (link) => link.getAttribute('aria-current') === 'page'
+    )
+    let edgeLeft = Number.parseFloat(indicator?.style.left ?? '') || null
+    const moveIndicator = (link: HTMLElement | null | undefined) => {
+      if (!navPrimary || !indicator) return
+      if (!link) {
+        indicator.dataset.visible = 'false'
+        return
+      }
+
+      const left = link.offsetLeft
+      const right = navPrimary.clientWidth - left - link.offsetWidth
+      const appearing =
+        indicator.dataset.visible !== 'true' || edgeLeft === null
+      const direction = edgeLeft === null ? 0 : Math.sign(left - edgeLeft)
+
+      indicator.style.setProperty(
+        '--edge-left-duration',
+        appearing ? '0ms' : direction < 0 ? '420ms' : '620ms'
+      )
+      indicator.style.setProperty(
+        '--edge-right-duration',
+        appearing ? '0ms' : direction > 0 ? '420ms' : '620ms'
+      )
+      indicator.style.left = `${left}px`
+      indicator.style.right = `${right}px`
+      indicator.dataset.visible = 'true'
+      edgeLeft = left
+    }
+
+    if (navPrimary && indicator) {
+      // 从上一页带来的位置先落定一帧，再弹到本页的激活项
+      requestAnimationFrame(() => moveIndicator(activeLink))
+      navLinks.forEach((link) => {
+        link.addEventListener('pointerenter', () => moveIndicator(link), {
+          signal
+        })
+        link.addEventListener('focus', () => moveIndicator(link), { signal })
+      })
+      navPrimary.addEventListener(
+        'pointerleave',
+        () => moveIndicator(activeLink),
+        { signal }
+      )
+      navPrimary.addEventListener(
+        'focusout',
+        (event) => {
+          if (!navPrimary.contains(event.relatedTarget as Node))
+            moveIndicator(activeLink)
+        },
+        { signal }
+      )
+      // 字体加载、窗口变化会改变链接宽度：直接贴合，不做动画
+      const resizeObserver = new ResizeObserver(() => {
+        if (indicator.dataset.visible !== 'true') return
+        edgeLeft = null
+        indicator.dataset.visible = 'false'
+        moveIndicator(
+          navLinks.find((link) => link.matches(':hover, :focus-visible')) ??
+            activeLink
+        )
+      })
+      resizeObserver.observe(navPrimary)
+      signal.addEventListener('abort', () => resizeObserver.disconnect())
+    }
+
     const handleBreakpointChange = () => {
       if (desktopMedia.matches) setOpen(false)
       else syncNavigationState()
@@ -367,5 +441,15 @@ const isActive = (item: NavItemType) =>
     if (oldIsland?.classList.contains('island-scrolled'))
       newIsland?.classList.add('island-scrolled')
     if (oldShelf && newShelf) newShelf.style.opacity = oldShelf.style.opacity
+
+    // 指示条同理：新页面从旧位置出发，滑向新的激活项
+    const oldIndicator = document.querySelector<HTMLElement>('.nav-indicator')
+    const newIndicator =
+      event.newDocument.querySelector<HTMLElement>('.nav-indicator')
+    if (oldIndicator?.dataset.visible === 'true' && newIndicator) {
+      newIndicator.style.left = oldIndicator.style.left
+      newIndicator.style.right = oldIndicator.style.right
+      newIndicator.dataset.visible = 'true'
+    }
   })
 </script>

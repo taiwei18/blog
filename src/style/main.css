@@ -259,6 +259,17 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 /* Tactile surfaces: restrained highlights, no moving reading column. */
 :root {
   --ease-surface: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 闭式弹簧阶跃响应采样：snappy ζ=0.72（约 3.8% 回弹），soft ζ=0.94（无回弹） */
+  --spring-snappy: var(--ease-surface);
+  --spring-soft: var(--ease-surface);
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --spring-snappy: linear(0, 0.0293, 0.103, 0.2033, 0.3165, 0.4323, 0.5435, 0.6454, 0.7353, 0.8119, 0.8751, 0.9257, 0.9646, 0.9935, 1.0137, 1.027, 1.0346, 1.038, 1.0382, 1.0362, 1.0329, 1.0288, 1.0243, 1.0199, 1.0158, 1.0121, 1.0088, 1.0061, 1.0039, 1.0022, 1.0008, 0.9999, 0.9992, 0.9988, 0.9986, 0.9985, 0.9986, 0.9987, 0.9988, 0.999, 1);
+    --spring-soft: linear(0, 0.013, 0.0468, 0.0948, 0.152, 0.2145, 0.2793, 0.3441, 0.4073, 0.4679, 0.5251, 0.5783, 0.6273, 0.6722, 0.7128, 0.7495, 0.7822, 0.8114, 0.8373, 0.8601, 0.8801, 0.8976, 0.9128, 0.9261, 0.9375, 0.9473, 0.9558, 0.963, 0.9692, 0.9744, 0.9788, 0.9826, 0.9857, 0.9884, 0.9906, 0.9924, 0.9939, 0.9952, 0.9962, 0.9971, 1);
+  }
 }
 
 .post-row {
@@ -384,9 +395,19 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   backdrop-filter: blur(18px) saturate(140%);
   transition:
-    max-width 420ms var(--ease-surface),
+    max-width 640ms var(--spring-snappy),
+    border-radius 560ms var(--spring-soft),
     background-color 240ms ease,
     box-shadow 360ms var(--ease-surface);
+}
+
+/* 同一个形体在三种状态间变形：展开时是直角宽条，收起成药丸，打开菜单变成圆角卡片 */
+.site-island.island-scrolled {
+  border-radius: 1.6875rem;
+}
+
+.site-island[data-drawer-open] {
+  border-radius: 1.125rem;
 }
 
 [data-mode="dark"] .site-island {
@@ -442,27 +463,28 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   transform: rotate(-3deg) scale(1.04);
 }
 
-.nav-primary-link::after {
-  content: "";
+/* 液态指示条：left / right 各自过渡，前沿时长短、后沿时长长（由脚本按方向写入），
+   移动时自然被拉长，到位后弹簧收拢 */
+.nav-indicator {
   position: absolute;
-  right: 0.75rem;
+  z-index: 0;
+  top: 0.25rem;
   bottom: 0.25rem;
-  left: 0.75rem;
-  height: 1px;
-  background: currentColor;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--text-title) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text-title) 8%, transparent);
   opacity: 0;
-  transform: scaleX(0);
-  transform-origin: right;
+  transform: scale(0.9);
   transition:
-    opacity 180ms ease,
-    transform 260ms var(--ease-surface);
+    left var(--edge-left-duration, 0ms) var(--spring-snappy),
+    right var(--edge-right-duration, 0ms) var(--spring-snappy),
+    opacity 200ms ease,
+    transform 420ms var(--spring-snappy);
 }
 
-.nav-primary-link:is(:hover, :focus-visible)::after,
-.nav-primary-link[aria-current="page"]::after {
-  opacity: 0.72;
-  transform: scaleX(1);
-  transform-origin: left;
+.nav-indicator[data-visible="true"] {
+  opacity: 1;
+  transform: scale(1);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -471,32 +493,42 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   }
 }
 
+/* 内容换位：退场与入场各自带一段短模糊，交接处不叠影 */
 .nav-desktop-cluster {
   max-width: 32rem;
   overflow: hidden;
   opacity: 1;
+  filter: blur(0);
   transform: scaleX(1);
   transform-origin: right;
   transition:
-    max-width 360ms var(--ease-surface),
-    opacity 180ms ease,
-    transform 320ms var(--ease-surface);
+    max-width 560ms var(--spring-soft),
+    opacity 220ms ease 120ms,
+    filter 260ms ease 100ms,
+    transform 480ms var(--spring-snappy);
 }
 
 @media (min-width: 768px) {
   .site-island:is(.island-scrolled, [data-drawer-open]) .nav-desktop-cluster {
     max-width: 0;
     opacity: 0;
+    filter: blur(6px);
     pointer-events: none;
     transform: scaleX(0.92);
+    transition:
+      max-width 560ms var(--spring-soft),
+      opacity 160ms ease,
+      filter 180ms ease,
+      transform 320ms var(--ease-surface);
   }
 
   .site-island:not(.island-scrolled):not([data-drawer-open]) .menu-toggle-btn {
     width: 0;
     border-width: 0;
     opacity: 0;
+    filter: blur(6px);
     pointer-events: none;
-    transform: scaleX(0);
+    transform: scale(0.6);
     visibility: hidden;
   }
 }
@@ -523,12 +555,13 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 .menu-toggle-btn {
   overflow: hidden;
   transition:
-    width 320ms var(--ease-surface),
-    opacity 180ms ease,
+    width 480ms var(--spring-soft),
+    opacity 220ms ease 140ms,
+    filter 260ms ease 120ms,
     color 180ms ease,
     background-color 180ms ease,
     border-color 180ms ease,
-    transform 280ms var(--ease-surface),
+    transform 520ms var(--spring-snappy) 80ms,
     visibility 0s linear;
 }
 
@@ -560,7 +593,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   transform-origin: center;
   transition:
     width 200ms ease,
-    transform 280ms var(--ease-surface);
+    transform 460ms var(--spring-snappy);
 }
 
 .studio-hamburger .line-2 {
@@ -593,7 +626,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 .studio-drawer {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 420ms var(--ease-surface);
+  transition: grid-template-rows 560ms var(--spring-soft);
 }
 
 .studio-drawer > .drawer-inner {
