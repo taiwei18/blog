@@ -7,7 +7,8 @@ import { getPosts } from '@/util/posts'
 
 const frontmatter: PageLayoutProps['frontmatter'] = {
   title: '搜索',
-  description: '搜索 TaiWei 博客中的前端开发、工程化、AI 编码工具与小程序实践文章。',
+  description:
+    '搜索 TaiWei 博客中的前端开发、工程化、AI 编码工具与小程序实践文章。',
   robots: 'noindex,follow',
   activeHeaderLink: '/search'
 }
@@ -27,33 +28,48 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
 ---
 
 <PageLayout {frontmatter}>
-  <div class="mb-10 border-b border-border-subtle pb-6">
-    <h1 class="font-sans text-3xl font-semibold tracking-[-0.04em] text-title sm:text-4xl">搜索</h1>
-    <p class="mt-3 text-sm leading-7 text-muted">检索全站文章与技术主题</p>
+  <div class="border-border-subtle mb-10 border-b pb-6">
+    <h1
+      class="text-title font-sans text-3xl font-semibold tracking-[-0.04em] sm:text-4xl"
+    >
+      搜索
+    </h1>
+    <p class="text-muted mt-3 text-sm leading-7">检索全站文章与技术主题</p>
   </div>
 
-  <search-input class="relative flex w-full flex-col gap-4 mb-8">
+  <search-input class="relative mb-8 flex w-full flex-col gap-4">
     <div class="relative w-full">
       <input
         type="search"
         aria-label="搜索文章"
         autocomplete="off"
         placeholder="输入关键词进行搜索..."
-        class="w-full border border-border-subtle bg-surface px-4 py-3 font-sans text-base text-title transition-colors placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none sm:text-sm"
+        class="border-border-subtle bg-surface text-title placeholder:text-muted focus:border-accent focus:ring-accent w-full border px-4 py-3 font-sans text-base transition-colors focus:ring-1 focus:outline-none sm:text-sm"
       />
-      <button id="search-clear" class="invisible absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer border border-border-subtle bg-surface px-2 py-0.5 font-mono text-[10px] text-muted transition-colors hover:border-accent hover:text-accent">
+      <button
+        id="search-clear"
+        class="border-border-subtle bg-surface text-muted hover:border-accent hover:text-accent invisible absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border px-2 py-0.5 font-mono text-[10px] transition-colors"
+      >
         ESC
       </button>
     </div>
   </search-input>
 
-  <div class="pb-2 mb-4">
-    <h2 id="results-heading" aria-live="polite" class="font-mono text-xs text-muted uppercase tracking-wider">
+  <div class="mb-4 pb-2">
+    <h2
+      id="results-heading"
+      aria-live="polite"
+      class="text-muted font-mono text-xs tracking-wider uppercase"
+    >
       等待输入...
     </h2>
   </div>
 
-  <ul id="results-list" class="list-none p-0 flex flex-col divide-y divide-border-subtle"></ul>
+  <ul
+    id="results-list"
+    class="divide-border-subtle flex list-none flex-col divide-y p-0"
+  >
+  </ul>
 
   <script
     is:inline
@@ -114,11 +130,14 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
           const link = document.createElement('a')
           const excerpt = document.createElement('div')
 
-          item.className = 'py-4 first:pt-0 transition-transform duration-200 hover:translate-x-1'
-          link.className = 'font-sans text-base font-medium text-title hover:opacity-80 transition-opacity block'
+          item.className =
+            'py-4 first:pt-0 transition-transform duration-200 hover:translate-x-1'
+          link.className =
+            'font-sans text-base font-medium text-title hover:opacity-80 transition-opacity block'
           link.href = result.url
           link.textContent = result.title
-          excerpt.className = 'text-xs text-muted mt-1 line-clamp-2 leading-relaxed font-sans'
+          excerpt.className =
+            'text-xs text-muted mt-1 line-clamp-2 leading-relaxed font-sans'
           excerpt.textContent = result.excerpt
           item.append(link, excerpt)
           resultsContainer.append(item)

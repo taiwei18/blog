@@ -15,11 +15,23 @@ const normalizePageUrl = (url: string) => {
 
 {
   page.lastPage > 1 && (
-    <nav data-reveal class="mb-8 flex w-full grow items-end justify-center border-t border-border-subtle pt-6">
+    <nav
+      data-reveal
+      class="border-border-subtle mb-8 flex w-full grow items-end justify-center border-t pt-6"
+    >
       <div class="flex items-center gap-4 font-mono text-xs">
         {page.url.prev ? (
-          <a data-magnetic class="group inline-flex items-center gap-1 text-muted transition-colors hover:text-accent" href={normalizePageUrl(page.url.prev)}>
-            <span aria-hidden="true" class="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-x-0.5">←</span>
+          <a
+            data-magnetic
+            class="group text-muted hover:text-accent inline-flex items-center gap-1 transition-colors"
+            href={normalizePageUrl(page.url.prev)}
+          >
+            <span
+              aria-hidden="true"
+              class="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-x-0.5"
+            >
+              ←
+            </span>
             Previous
           </a>
         ) : (
@@ -27,15 +39,22 @@ const normalizePageUrl = (url: string) => {
             Previous
           </span>
         )}
-        <span class="tabular-nums">{page.currentPage} / {page.lastPage}</span>
+        <span class="tabular-nums">
+          {page.currentPage} / {page.lastPage}
+        </span>
         {page.url.next ? (
           <a
             data-magnetic
-            class="group inline-flex items-center gap-1 text-muted transition-colors hover:text-accent"
+            class="group text-muted hover:text-accent inline-flex items-center gap-1 transition-colors"
             href={normalizePageUrl(page.url.next)}
           >
             Next
-            <span aria-hidden="true" class="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5">→</span>
+            <span
+              aria-hidden="true"
+              class="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5"
+            >
+              →
+            </span>
           </a>
         ) : (
           <span class="opacity-25" aria-disabled="true">

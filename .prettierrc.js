@@ -11,5 +11,6 @@ export default {
   ],
   semi: false,
   singleQuote: true,
-  trailingComma: 'none'
+  trailingComma: 'none',
+  endOfLine: 'auto'
 }

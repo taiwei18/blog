@@ -1,22 +1,24 @@
 ---
-import TagsBar from "@/components/TagsBar.astro";
-import { toDateString } from "@/util";
-import { resolveTags } from "@/util/tags";
-import { Image } from "astro:assets";
-import { type CollectionEntry } from "astro:content";
+import TagsBar from '@/components/TagsBar.astro'
+import { toDateString } from '@/util'
+import { resolveTags } from '@/util/tags'
+import { Image } from 'astro:assets'
+import { type CollectionEntry } from 'astro:content'
 
 export interface Props {
-  post: CollectionEntry<"posts">;
+  post: CollectionEntry<'posts'>
 }
 
-const { id, data } = Astro.props.post;
+const { id, data } = Astro.props.post
 ---
 
-<div class="group subtle-card relative flex h-full flex-col justify-between p-5">
+<div
+  class="group subtle-card relative flex h-full flex-col justify-between p-5"
+>
   <div>
-    <div class="flex items-center justify-between gap-2 mb-3">
+    <div class="mb-3 flex items-center justify-between gap-2">
       <time
-        class="font-mono text-xs text-muted"
+        class="text-muted font-mono text-xs"
         datetime={data.publishedDate.toISOString()}
       >
         {toDateString(data.publishedDate)}
@@ -25,7 +27,7 @@ const { id, data } = Astro.props.post;
 
     {
       data.previewImage && (
-        <div class="relative mb-4 h-36 w-full overflow-hidden border border-border-subtle">
+        <div class="border-border-subtle relative mb-4 h-36 w-full overflow-hidden border">
           <Image
             src={data.previewImage}
             height={160}
@@ -37,19 +39,19 @@ const { id, data } = Astro.props.post;
     }
 
     <a
-      class="block font-sans text-base font-medium tracking-tight text-title group-hover:opacity-80 transition-opacity duration-150 line-clamp-2"
+      class="text-title line-clamp-2 block font-sans text-base font-medium tracking-tight transition-opacity duration-150 group-hover:opacity-80"
       href={`/posts/${id}/`}
       data-astro-prefetch
     >
       <span>{data.title}</span>
     </a>
 
-    <p class="mt-2 text-xs text-muted line-clamp-3 leading-relaxed">
+    <p class="text-muted mt-2 line-clamp-3 text-xs leading-relaxed">
       {data.description}
     </p>
   </div>
 
-  <div class="pt-3 mt-4 hairline-bottom">
+  <div class="hairline-bottom mt-4 pt-3">
     <TagsBar tags={resolveTags(data.tags)} />
   </div>
 </div>

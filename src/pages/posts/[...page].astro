@@ -1,54 +1,61 @@
 ---
-import Pagination from "@/components/Pagination.astro";
-import PostsGrid from "@/components/posts/PostsGrid.astro";
-import PostsList from "@/components/posts/PostsList.astro";
+import Pagination from '@/components/Pagination.astro'
+import PostsGrid from '@/components/posts/PostsGrid.astro'
+import PostsList from '@/components/posts/PostsList.astro'
 import PageLayout, {
-  type Props as PageLayoutProps,
-} from "@/layouts/PageLayout.astro";
-import config from "@/theme.config";
-import { getPosts, getPostsPageDescription } from "@/util/posts";
-import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+  type Props as PageLayoutProps
+} from '@/layouts/PageLayout.astro'
+import config from '@/theme.config'
+import { getPosts, getPostsPageDescription } from '@/util/posts'
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getPosts();
+  const posts = await getPosts()
 
-  return paginate(posts, { pageSize: config.postsPerPage });
-}) satisfies GetStaticPaths;
+  return paginate(posts, { pageSize: config.postsPerPage })
+}) satisfies GetStaticPaths
 
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
-const { page } = Astro.props;
+const { page } = Astro.props
 
-const pageTitle = page.currentPage === 1 ? "文章" : `文章 - 第 ${page.currentPage} 页`;
+const pageTitle =
+  page.currentPage === 1 ? '文章' : `文章 - 第 ${page.currentPage} 页`
 const pageDescription =
   page.currentPage === 1
-    ? "浏览 TaiWei 的前端开发、产品工程、AI 编码 Agent 与小程序实践文章。"
-    : `TaiWei 技术文章列表第 ${page.currentPage} 页，涵盖前端工程、Vue3、UniApp 与开发工具实践。`;
+    ? '浏览 TaiWei 的前端开发、产品工程、AI 编码 Agent 与小程序实践文章。'
+    : `TaiWei 技术文章列表第 ${page.currentPage} 页，涵盖前端工程、Vue3、UniApp 与开发工具实践。`
 
-const frontmatter: PageLayoutProps["frontmatter"] = {
+const frontmatter: PageLayoutProps['frontmatter'] = {
   title: pageTitle,
   description: pageDescription,
-  activeHeaderLink: "博客",
-};
+  activeHeaderLink: '博客'
+}
 
-const PageDescription = getPostsPageDescription();
+const PageDescription = getPostsPageDescription()
 ---
 
 <PageLayout {frontmatter}>
-  <header data-entrance class="mb-12 border-b border-border-subtle pb-6">
-    <p class="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-accent">Archive / Writing</p>
-    <h1 class="font-sans text-3xl font-semibold tracking-[-0.04em] text-title sm:text-4xl">
+  <header data-entrance class="border-border-subtle mb-12 border-b pb-6">
+    <p
+      class="text-accent mb-3 font-mono text-[0.65rem] tracking-[0.2em] uppercase"
+    >
+      Archive / Writing
+    </p>
+    <h1
+      class="text-title font-sans text-3xl font-semibold tracking-[-0.04em] sm:text-4xl"
+    >
       文章
     </h1>
-    <p class="mt-3 text-sm leading-7 text-muted">
+    <p class="text-muted mt-3 text-sm leading-7">
       共 <span data-counter-target={page.total}>{page.total}</span> 篇工程实践与技术思考。
     </p>
   </header>
 
   {PageDescription && <PageDescription />}
 
-  {config.postsView === "list" && <PostsList posts={page.data} />}
-  {config.postsView === "grid" && <PostsGrid posts={page.data} />}
+  {config.postsView === 'list' && <PostsList posts={page.data} />}
+  {config.postsView === 'grid' && <PostsGrid posts={page.data} />}
 
   <Pagination slot="bottom" page={page} />
 </PageLayout>

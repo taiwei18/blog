@@ -30,9 +30,7 @@ export interface Props {
     updatedDate: Date
     tags: string[]
     keywords: string[]
-    structuredData:
-      | Record<string, unknown>
-      | Array<Record<string, unknown>>
+    structuredData: Record<string, unknown> | Array<Record<string, unknown>>
   }>
 }
 
@@ -55,20 +53,28 @@ let titleWithSuffix = title
 if (String(title).toLowerCase() !== String(config.title).toLowerCase())
   titleWithSuffix += ` - ${config.title}`
 
-const openGraphImageUrl = new URL(resolveImageUrl(openGraphImage), Astro.site).href
+const openGraphImageUrl = new URL(resolveImageUrl(openGraphImage), Astro.site)
+  .href
 const openGraphImageAlt = `${titleWithSuffix} Cover`
-const articleAuthorUrl = new URL(`/authors/${encodeURIComponent(author)}/`, Astro.site).href
 
-const frontmatterTags = Array.isArray(Astro.props.frontmatter?.tags) ? Astro.props.frontmatter.tags : []
-const frontmatterKeywords = Array.isArray(Astro.props.frontmatter?.keywords) ? Astro.props.frontmatter.keywords : []
-const keywords = frontmatterKeywords.length ? frontmatterKeywords : frontmatterTags
+const frontmatterTags = Array.isArray(Astro.props.frontmatter?.tags)
+  ? Astro.props.frontmatter.tags
+  : []
+const frontmatterKeywords = Array.isArray(Astro.props.frontmatter?.keywords)
+  ? Astro.props.frontmatter.keywords
+  : []
+const keywords = frontmatterKeywords.length
+  ? frontmatterKeywords
+  : frontmatterTags
 const keywordsContent = keywords.length ? keywords.join(', ') : undefined
 
-const structuredDataEntries = Array.isArray(Astro.props.frontmatter?.structuredData)
+const structuredDataEntries = Array.isArray(
+  Astro.props.frontmatter?.structuredData
+)
   ? Astro.props.frontmatter.structuredData
   : Astro.props.frontmatter?.structuredData
-  ? [Astro.props.frontmatter.structuredData]
-  : []
+    ? [Astro.props.frontmatter.structuredData]
+    : []
 const siteStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -77,7 +83,10 @@ const siteStructuredData = {
   description: config.description,
   inLanguage: config.locale
 }
-const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredDataEntries])
+const structuredDataJson = JSON.stringify([
+  siteStructuredData,
+  ...structuredDataEntries
+])
 ---
 
 <!doctype html>
@@ -90,17 +99,36 @@ const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredData
         if (window.__motionReady) return
         window.__motionReady = true
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-        const apply = () => document.documentElement.classList.toggle('motion-ready', !reduced.matches)
+        const apply = () =>
+          document.documentElement.classList.toggle(
+            'motion-ready',
+            !reduced.matches
+          )
         apply()
         // 页面切换时 Astro 会用新文档覆盖 <html> 的属性，需要在新页面渲染前重新标记
         document.addEventListener('astro:after-swap', apply)
       })()
     </script>
-    <link rel="preload" href={geistSans400} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={geistSans500} as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href={geistSans400}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href={geistSans500}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 
@@ -112,7 +140,12 @@ const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredData
     <meta name="robots" content={robots} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" hreflang={config.locale} href={canonicalURL} />
-    <link rel="alternate" type="application/rss+xml" title={title} href={new URL('feed.xml', Astro.site)} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={title}
+      href={new URL('feed.xml', Astro.site)}
+    />
 
     <meta property="og:type" content={openGraphType} />
     <meta property="og:title" content={titleWithSuffix} />
@@ -128,10 +161,28 @@ const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredData
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={openGraphImageUrl} />
 
-    {publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
-    {updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
+    {
+      publishedDate && (
+        <meta
+          property="article:published_time"
+          content={publishedDate.toISOString()}
+        />
+      )
+    }
+    {
+      updatedDate && (
+        <meta
+          property="article:modified_time"
+          content={updatedDate.toISOString()}
+        />
+      )
+    }
 
-    <script is:inline type="application/ld+json" set:html={structuredDataJson} />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={structuredDataJson}
+    />
     <ModeManager />
     <ClientRouter />
     <link href="/zoom-vanilla.js/zoom.css" rel="stylesheet" />
@@ -141,6 +192,9 @@ const structuredDataJson = JSON.stringify([siteStructuredData, ...structuredData
     <Motion />
     <slot />
     <CodeBlockIconsPlugin />
-    <script is:inline data-astro-rerun src="/zoom-vanilla.js/zoom-vanilla.min.js"></script>
+    <script
+      is:inline
+      data-astro-rerun
+      src="/zoom-vanilla.js/zoom-vanilla.min.js"></script>
   </body>
 </html>

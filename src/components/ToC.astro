@@ -28,34 +28,37 @@ const processedHeadings = filteredHeadings.map((h) => {
 ---
 
 {
-  processedHeadings.length > 0 && (
-    isInline ? (
+  processedHeadings.length > 0 &&
+    (isInline ? (
       <nav
         aria-label="文章导览目录"
-        class={`toc-inline not-prose mb-8 sm:mb-10 rounded-[2px] border border-border-subtle bg-surface/50 p-4 sm:p-5 ${className}`}
+        class={`toc-inline not-prose border-border-subtle bg-surface/50 mb-8 rounded-[2px] border p-4 sm:mb-10 sm:p-5 ${className}`}
       >
-        <div class="flex items-center justify-between border-b border-border-subtle/80 pb-2.5 font-mono text-xs">
-          <div class="flex items-center gap-2 font-medium text-title">
-            <span class="iconify tabler--list-tree text-accent text-sm" aria-hidden="true" />
+        <div class="border-border-subtle/80 flex items-center justify-between border-b pb-2.5 font-mono text-xs">
+          <div class="text-title flex items-center gap-2 font-medium">
+            <span
+              class="iconify tabler--list-tree text-accent text-sm"
+              aria-hidden="true"
+            />
             <span>文章导览</span>
-            <span class="text-faint font-normal text-[11px]">/ Contents</span>
+            <span class="text-faint text-[11px] font-normal">/ Contents</span>
           </div>
-          <span class="font-mono text-[11px] text-muted tabular-nums">
+          <span class="text-muted font-mono text-[11px] tabular-nums">
             {processedHeadings.length} 节
           </span>
         </div>
 
-        <ul class="mt-3.5 space-y-1.5 text-xs font-sans">
+        <ul class="mt-3.5 space-y-1.5 font-sans text-xs">
           {processedHeadings.map((h) => (
             <li class={h.depth === 3 ? 'pl-4 sm:pl-5' : ''}>
               <a
                 href={`#${h.slug}`}
-                class="group inline-flex items-baseline gap-2 py-0.5 text-muted transition-colors hover:text-title no-underline line-clamp-1"
+                class="group text-muted hover:text-title line-clamp-1 inline-flex items-baseline gap-2 py-0.5 no-underline transition-colors"
               >
-                <span class="font-mono text-[10px] text-faint group-hover:text-accent transition-colors tabular-nums shrink-0">
+                <span class="text-faint group-hover:text-accent shrink-0 font-mono text-[10px] tabular-nums transition-colors">
                   {h.indexStr}
                 </span>
-                <span class="group-hover:translate-x-0.5 transition-transform duration-150 leading-relaxed">
+                <span class="leading-relaxed transition-transform duration-150 group-hover:translate-x-0.5">
                   {h.text}
                 </span>
               </a>
@@ -74,7 +77,7 @@ const processedHeadings = filteredHeadings.map((h) => {
               <a
                 href={`#${h.slug}`}
                 data-toc-slug={h.slug}
-                class="toc-aside-link block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed text-muted transition-[color,background-color,box-shadow] duration-200 hover:bg-surface-hover hover:text-title no-underline line-clamp-2"
+                class="toc-aside-link text-muted hover:bg-surface-hover hover:text-title line-clamp-2 block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed no-underline transition-[color,background-color,box-shadow] duration-200"
               >
                 {h.text}
               </a>
@@ -82,8 +85,7 @@ const processedHeadings = filteredHeadings.map((h) => {
           ))}
         </ul>
       </nav>
-    )
-  )
+    ))
 }
 
 <style is:global>
@@ -95,14 +97,19 @@ const processedHeadings = filteredHeadings.map((h) => {
   .toc-aside-link.is-active {
     color: var(--accent) !important;
     font-weight: 500 !important;
-    background-color: color-mix(in oklab, var(--accent) 10%, transparent) !important;
+    background-color: color-mix(
+      in oklab,
+      var(--accent) 10%,
+      transparent
+    ) !important;
     box-shadow: inset 2px 0 0 var(--accent);
   }
 </style>
 
 <script>
   function setupTocScrollSpy() {
-    const asideLinks = document.querySelectorAll<HTMLAnchorElement>('.toc-aside-link')
+    const asideLinks =
+      document.querySelectorAll<HTMLAnchorElement>('.toc-aside-link')
     if (asideLinks.length === 0) return
 
     const headings = Array.from(

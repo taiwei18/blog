@@ -33,7 +33,7 @@ const menuId = generateItemId(`${label}-${instanceId}-menu`)
     aria-controls={menuId}
     aria-expanded="false"
     class:list={[
-      'group relative flex items-center gap-1 py-1.5 text-xs tracking-tight select-none transition-colors duration-200 sm:w-auto sm:py-1',
+      'group relative flex items-center gap-1 py-1.5 text-xs tracking-tight transition-colors duration-200 select-none sm:w-auto sm:py-1',
       { 'text-title font-medium': isActive },
       { 'text-muted hover:text-title': !isActive }
     ]}
@@ -60,13 +60,13 @@ const menuId = generateItemId(`${label}-${instanceId}-menu`)
     aria-labelledby={buttonId}
     hidden
     inert
-    class="dropdown-surface mt-1.5 w-full flex-col gap-0.5 border border-border-subtle bg-surface/95 p-1 backdrop-blur-xl shadow-xl shadow-black/10 rounded-[2px] sm:absolute sm:right-0 sm:z-30 sm:mt-2.5 sm:min-w-[140px] sm:w-auto"
+    class="dropdown-surface border-border-subtle bg-surface/95 mt-1.5 w-full flex-col gap-0.5 rounded-[2px] border p-1 shadow-xl shadow-black/10 backdrop-blur-xl sm:absolute sm:right-0 sm:z-30 sm:mt-2.5 sm:w-auto sm:min-w-[140px]"
   >
     {
       children.map((item) => (
         <li
           role="none"
-          class="rounded-[2px] transition-colors duration-150 hover:bg-card-hover"
+          class="hover:bg-card-hover rounded-[2px] transition-colors duration-150"
         >
           <div class="px-2.5 py-1">
             <HeaderItem
@@ -105,10 +105,14 @@ const menuId = generateItemId(`${label}-${instanceId}-menu`)
 
       const items = Array.from(menu.querySelectorAll<HTMLAnchorElement>('a'))
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-      reduced.addEventListener('change', () => {
-        this.animation?.cancel()
-        menu.hidden = this.dataset.open !== 'true'
-      }, { signal })
+      reduced.addEventListener(
+        'change',
+        () => {
+          this.animation?.cancel()
+          menu.hidden = this.dataset.open !== 'true'
+        },
+        { signal }
+      )
       const setOpen = (open: boolean, focus = false) => {
         this.animation?.cancel()
         this.dataset.open = String(open)
@@ -121,43 +125,87 @@ const menuId = generateItemId(`${label}-${instanceId}-menu`)
         } else {
           this.animation = menu.animate(
             open
-              ? [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'translateY(0)' }]
-              : [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-4px)' }],
-            { duration: open ? 220 : 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+              ? [
+                  { opacity: 0, transform: 'translateY(-6px)' },
+                  { opacity: 1, transform: 'translateY(0)' }
+                ]
+              : [
+                  { opacity: 1, transform: 'translateY(0)' },
+                  { opacity: 0, transform: 'translateY(-4px)' }
+                ],
+            {
+              duration: open ? 220 : 150,
+              easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+            }
           )
-          this.animation.onfinish = () => { menu.hidden = !open }
+          this.animation.onfinish = () => {
+            menu.hidden = !open
+          }
         }
         if (open && focus) items[0]?.focus()
       }
 
-      button.addEventListener('click', (event) => {
-        setOpen(this.dataset.open !== 'true', event.detail === 0)
-      }, { signal })
+      button.addEventListener(
+        'click',
+        (event) => {
+          setOpen(this.dataset.open !== 'true', event.detail === 0)
+        },
+        { signal }
+      )
 
-      this.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && this.dataset.open === 'true') {
-          event.preventDefault()
-          event.stopPropagation()
-          setOpen(false)
-          button.focus()
-        }
-        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
-          event.preventDefault()
-          if (this.dataset.open !== 'true') setOpen(true)
-          const current = items.indexOf(document.activeElement as HTMLAnchorElement)
-          const next = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1
-            : event.key === 'ArrowDown' ? (current + 1) % items.length
-            : current < 0 ? items.length - 1 : (current - 1 + items.length) % items.length
-          items[next]?.focus()
-        }
-      }, { signal })
+      this.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape' && this.dataset.open === 'true') {
+            event.preventDefault()
+            event.stopPropagation()
+            setOpen(false)
+            button.focus()
+          }
+          if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+            event.preventDefault()
+            if (this.dataset.open !== 'true') setOpen(true)
+            const current = items.indexOf(
+              document.activeElement as HTMLAnchorElement
+            )
+            const next =
+              event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? items.length - 1
+                  : event.key === 'ArrowDown'
+                    ? (current + 1) % items.length
+                    : current < 0
+                      ? items.length - 1
+                      : (current - 1 + items.length) % items.length
+            items[next]?.focus()
+          }
+        },
+        { signal }
+      )
 
-      document.addEventListener('click', (event) => {
-        if (!this.contains(event.target as Node) && this.dataset.open === 'true') setOpen(false)
-      }, { signal })
-      this.addEventListener('focusout', (event) => {
-        if (!this.contains(event.relatedTarget as Node) && this.dataset.open === 'true') setOpen(false)
-      }, { signal })
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (
+            !this.contains(event.target as Node) &&
+            this.dataset.open === 'true'
+          )
+            setOpen(false)
+        },
+        { signal }
+      )
+      this.addEventListener(
+        'focusout',
+        (event) => {
+          if (
+            !this.contains(event.relatedTarget as Node) &&
+            this.dataset.open === 'true'
+          )
+            setOpen(false)
+        },
+        { signal }
+      )
     }
   }
 

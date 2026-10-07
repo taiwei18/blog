@@ -21,7 +21,10 @@ const recentPosts = allPosts.slice(0, 6)
   <div class="flex min-h-screen flex-col">
     <Header activeHeaderLink="首页" />
 
-    <main id="main" class="mx-auto flex w-full max-w-2xl flex-1 flex-col pt-24 px-5 sm:pt-28 sm:px-6 md:px-0">
+    <main
+      id="main"
+      class="mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 pt-24 sm:px-6 sm:pt-28 md:px-0"
+    >
       <section class="editorial-hero" aria-labelledby="hero-title">
         <div class="hero-kicker" data-entrance>
           <span class="hero-imprint">TaiWei’s journal</span>
@@ -34,7 +37,11 @@ const recentPosts = allPosts.slice(0, 6)
             <span data-title-line class="hero-title-line">深入技术，</span>
           </span>
           <span class="hero-line-mask hero-line-offset">
-            <span data-title-line class="hero-title-line">浅出<span class="hero-emphasis">文字<span class="hero-period">。</span></span></span>
+            <span data-title-line class="hero-title-line"
+              >浅出<span class="hero-emphasis"
+                >文字<span class="hero-period">。</span></span
+              ></span
+            >
           </span>
         </h1>
 
@@ -45,8 +52,17 @@ const recentPosts = allPosts.slice(0, 6)
           </p>
           <a href="/about/" class="hero-about hero-link">
             <span>关于 TaiWei</span>
-            <svg class="hero-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <path d="M5 19 19 5M5 5h14v14" />
+            <svg
+              class="hero-arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              aria-hidden="true"
+            >
+              <path d="M5 19 19 5M5 5h14v14"></path>
             </svg>
           </a>
         </div>
@@ -54,33 +70,57 @@ const recentPosts = allPosts.slice(0, 6)
 
       <!-- Articles Section -->
       <section class="mb-20">
-        <div class="mb-2 flex items-end justify-between border-b border-border-subtle pb-4 font-mono">
-          <h2 class="font-sans text-xl font-medium tracking-tight text-title">精选文章</h2>
-          <a href="/posts/" data-magnetic class="group inline-flex items-center gap-1.5 font-mono text-xs text-muted transition-colors hover:text-title">
+        <div
+          class="border-border-subtle mb-2 flex items-end justify-between border-b pb-4 font-mono"
+        >
+          <h2 class="text-title font-sans text-xl font-medium tracking-tight">
+            精选文章
+          </h2>
+          <a
+            href="/posts/"
+            data-magnetic
+            class="group text-muted hover:text-title inline-flex items-center gap-1.5 font-mono text-xs transition-colors"
+          >
             <span>查看全部 ({allPosts.length})</span>
-            <span class="flex size-3.5 items-center justify-center border border-border-subtle bg-surface font-mono text-[9px] text-muted transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:border-accent group-hover:text-accent" aria-hidden="true">→</span>
+            <span
+              class="border-border-subtle bg-surface text-muted group-hover:border-accent group-hover:text-accent flex size-3.5 items-center justify-center border font-mono text-[9px] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5"
+              aria-hidden="true">→</span
+            >
           </a>
         </div>
 
         <div class="flex flex-col">
           {
             recentPosts.map((post, index) => (
-              <article data-reveal class="post-row group border-b border-border-subtle py-6 sm:py-7">
+              <article
+                data-reveal
+                class="post-row group border-border-subtle border-b py-6 sm:py-7"
+              >
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-                  <a href={`/posts/${post.id}/`} class="interactive-underline inline-flex items-start gap-2.5 text-base font-medium tracking-tight text-title sm:text-lg no-underline" data-astro-prefetch>
-                    <span class="font-mono text-xs text-accent font-normal mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                  <a
+                    href={`/posts/${post.id}/`}
+                    class="interactive-underline text-title inline-flex items-start gap-2.5 text-base font-medium tracking-tight no-underline sm:text-lg"
+                    data-astro-prefetch
+                  >
+                    <span class="text-accent mt-1 font-mono text-xs font-normal opacity-70 transition-opacity group-hover:opacity-100">
                       {String(index + 1).padStart(2, '0')}
                     </span>
                     <span>{post.data.title}</span>
-                    <span aria-hidden="true" class="post-arrow flex size-4 shrink-0 items-center justify-center border border-border-subtle bg-surface/80 text-[10px] text-accent mt-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                      <span class="iconify tabler--arrow-up-right text-[11px]"></span>
+                    <span
+                      aria-hidden="true"
+                      class="post-arrow border-border-subtle bg-surface/80 text-accent mt-1 flex size-4 shrink-0 items-center justify-center border text-[10px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    >
+                      <span class="iconify tabler--arrow-up-right text-[11px]" />
                     </span>
                   </a>
-                  <time class="shrink-0 font-mono text-xs text-muted tabular-nums" datetime={post.data.publishedDate.toISOString()}>
+                  <time
+                    class="text-muted shrink-0 font-mono text-xs tabular-nums"
+                    datetime={post.data.publishedDate.toISOString()}
+                  >
                     {toDateString(post.data.publishedDate)}
                   </time>
                 </div>
-                <p class="mt-3 max-w-xl text-xs sm:text-sm leading-relaxed text-muted line-clamp-2 pl-6 sm:pl-7">
+                <p class="text-muted mt-3 line-clamp-2 max-w-xl pl-6 text-xs leading-relaxed sm:pl-7 sm:text-sm">
                   {post.data.description}
                 </p>
               </article>
@@ -134,7 +174,8 @@ const recentPosts = allPosts.slice(0, 6)
   .hero-title {
     margin-block: 2.75rem 2.5rem;
     color: var(--text-title);
-    font-family: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'SimSun', serif;
+    font-family:
+      'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'SimSun', serif;
     font-size: clamp(2.5rem, 6.5vw, 4rem);
     font-weight: 400;
     line-height: 1.5;
@@ -185,7 +226,9 @@ const recentPosts = allPosts.slice(0, 6)
     color: var(--text-title);
     font-size: 0.75rem;
     text-decoration: none;
-    transition: color 220ms ease, transform 220ms var(--ease-surface);
+    transition:
+      color 220ms ease,
+      transform 220ms var(--ease-surface);
   }
 
   .hero-link:is(:hover, :focus-visible) {
@@ -215,8 +258,6 @@ const recentPosts = allPosts.slice(0, 6)
     transform: translate(2px, -2px);
   }
 
-
-
   @media (max-width: 479px) {
     .hero-title {
       margin-block: 2.25rem 1.75rem;
@@ -227,7 +268,5 @@ const recentPosts = allPosts.slice(0, 6)
       align-items: flex-start;
       gap: 0.75rem;
     }
-
-
   }
 </style>

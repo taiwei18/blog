@@ -1,29 +1,29 @@
 ---
-import ModeToggle from "@/components/mode/ModeToggle.astro";
-import config from "@/theme.config";
+import ModeToggle from '@/components/mode/ModeToggle.astro'
+import config from '@/theme.config'
 import type {
   HeaderItem as HeaderItemType,
-  NavItem as NavItemType,
-} from "@/types";
+  NavItem as NavItemType
+} from '@/types'
 
 export interface Props {
-  activeHeaderLink?: string;
+  activeHeaderLink?: string
 }
 
-const { activeHeaderLink } = Astro.props;
+const { activeHeaderLink } = Astro.props
 
 const isNavItem = (item: HeaderItemType): item is NavItemType =>
-  Object.hasOwn(item, "href");
+  Object.hasOwn(item, 'href')
 
 const primaryNavLinks = config.navbarItems.flatMap((item) =>
-  isNavItem(item) ? [item] : [],
-);
-const desktopNavLinks = primaryNavLinks.filter((item) => item.href !== "/");
+  isNavItem(item) ? [item] : []
+)
+const desktopNavLinks = primaryNavLinks.filter((item) => item.href !== '/')
 const utilityNavLinks = config.navbarItems.flatMap((item) =>
-  isNavItem(item) ? [] : item.children,
-);
+  isNavItem(item) ? [] : item.children
+)
 const isActive = (item: NavItemType) =>
-  activeHeaderLink === item.label || activeHeaderLink === item.href;
+  activeHeaderLink === item.label || activeHeaderLink === item.href
 ---
 
 <!-- Progressive Blur Top Shelf: 滚动时在页面顶部呈现平滑的多阶渐进式毛玻璃过渡 -->
@@ -89,12 +89,12 @@ const isActive = (item: NavItemType) =>
               desktopNavLinks.map((item) => (
                 <a
                   href={item.href}
-                  aria-current={isActive(item) ? "page" : undefined}
+                  aria-current={isActive(item) ? 'page' : undefined}
                   class:list={[
-                    "nav-primary-link relative block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-200 focus-visible:outline-none",
+                    'nav-primary-link relative block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-200 focus-visible:outline-none',
                     isActive(item)
-                      ? "text-title"
-                      : "text-muted hover:text-title",
+                      ? 'text-title'
+                      : 'text-muted hover:text-title'
                   ]}
                 >
                   <span>{item.label}</span>
@@ -159,12 +159,12 @@ const isActive = (item: NavItemType) =>
                   <a
                     style={`--i: ${index + 1}`}
                     href={item.href}
-                    aria-current={isActive(item) ? "page" : undefined}
+                    aria-current={isActive(item) ? 'page' : undefined}
                     class:list={[
-                      "drawer-main-link drawer-reveal group relative w-fit text-[clamp(1.85rem,4vw,3.75rem)] leading-[0.95] tracking-[-0.055em] transition-opacity duration-200 focus-visible:outline-none",
+                      'drawer-main-link drawer-reveal group relative w-fit text-[clamp(1.85rem,4vw,3.75rem)] leading-[0.95] tracking-[-0.055em] transition-opacity duration-200 focus-visible:outline-none',
                       isActive(item)
-                        ? "text-title"
-                        : "text-title/76 hover:text-title",
+                        ? 'text-title'
+                        : 'text-title/76 hover:text-title'
                     ]}
                   >
                     <span>{item.label}</span>
@@ -180,7 +180,10 @@ const isActive = (item: NavItemType) =>
           <div
             class="drawer-meta border-border-subtle mt-8 grid gap-7 border-t pt-5 sm:mt-10 sm:grid-cols-12 sm:gap-6 sm:pt-6"
           >
-            <div class="drawer-reveal sm:col-span-4" style={`--i: ${primaryNavLinks.length + 1}`}>
+            <div
+              class="drawer-reveal sm:col-span-4"
+              style={`--i: ${primaryNavLinks.length + 1}`}
+            >
               <p class="drawer-caption">Explore</p>
               <div class="text-title mt-2 flex flex-col items-start text-sm">
                 <a class="drawer-small-link" href="/search/">全站搜索</a>
@@ -193,7 +196,9 @@ const isActive = (item: NavItemType) =>
                 {
                   config.modeToggle && (
                     <div class="nav-mode-toggle mt-2.5 inline-flex items-center">
-                      <span class="mode-toggle-label text-muted text-xs leading-none tracking-tight select-none">显示模式</span>
+                      <span class="mode-toggle-label text-muted text-xs leading-none tracking-tight select-none">
+                        显示模式
+                      </span>
                       <ModeToggle />
                     </div>
                   )
@@ -201,18 +206,26 @@ const isActive = (item: NavItemType) =>
               </div>
             </div>
 
-            <div class="drawer-reveal sm:col-span-4" style={`--i: ${primaryNavLinks.length + 2}`}>
+            <div
+              class="drawer-reveal sm:col-span-4"
+              style={`--i: ${primaryNavLinks.length + 2}`}
+            >
               <p class="drawer-caption">Elsewhere</p>
               <div class="text-title mt-2 flex flex-col items-start text-sm">
                 {
                   utilityNavLinks.map((item) => (
-                    <a class="drawer-small-link" href={item.href}>{item.label}</a>
+                    <a class="drawer-small-link" href={item.href}>
+                      {item.label}
+                    </a>
                   ))
                 }
               </div>
             </div>
 
-            <div class="drawer-reveal hidden sm:col-span-4 sm:block" style={`--i: ${primaryNavLinks.length + 3}`}>
+            <div
+              class="drawer-reveal hidden sm:col-span-4 sm:block"
+              style={`--i: ${primaryNavLinks.length + 3}`}
+            >
               <p class="drawer-caption">Journal</p>
               <p class="text-muted mt-2 max-w-[18rem] text-sm leading-relaxed">
                 {config.description}
@@ -226,130 +239,133 @@ const isActive = (item: NavItemType) =>
 </header>
 
 <script>
-  let cleanupNavigation = () => {};
+  let cleanupNavigation = () => {}
 
   const setupNavigation = () => {
-    cleanupNavigation();
+    cleanupNavigation()
 
-    const controller = new AbortController();
-    const { signal } = controller;
-    const island = document.querySelector<HTMLElement>("#site-island");
-    const button =
-      document.querySelector<HTMLButtonElement>("#menu-toggle-btn");
-    const drawer = document.querySelector<HTMLElement>("#studio-drawer");
+    const controller = new AbortController()
+    const { signal } = controller
+    const island = document.querySelector<HTMLElement>('#site-island')
+    const button = document.querySelector<HTMLButtonElement>('#menu-toggle-btn')
+    const drawer = document.querySelector<HTMLElement>('#studio-drawer')
     const blurShelf = document.querySelector<HTMLElement>(
-      "#progressive-blur-shelf",
-    );
+      '#progressive-blur-shelf'
+    )
     const desktopCluster = island?.querySelector<HTMLElement>(
-      ".nav-desktop-cluster",
-    );
+      '.nav-desktop-cluster'
+    )
 
-    if (!island || !button || !drawer) return;
+    if (!island || !button || !drawer) return
 
-    const desktopMedia = window.matchMedia("(min-width: 768px)");
-    const isOpen = () => drawer.dataset.open === "true";
-    let lastShelfOpacity = "";
+    const desktopMedia = window.matchMedia('(min-width: 768px)')
+    const isOpen = () => drawer.dataset.open === 'true'
+    let lastShelfOpacity = ''
     const syncNavigationState = () => {
-      const scrollY = window.scrollY;
-      const scrolled = scrollY > 20;
-      island.classList.toggle("island-scrolled", scrolled);
+      const scrollY = window.scrollY
+      const scrolled = scrollY > 20
+      island.classList.toggle('island-scrolled', scrolled)
 
       if (blurShelf) {
         // 随上下滑动连续平滑渐进：0~36px 之间平滑过渡；只在数值变化时写入
-        const opacity = Math.min(1, Math.max(0, scrollY / 36)).toFixed(3);
+        const opacity = Math.min(1, Math.max(0, scrollY / 36)).toFixed(3)
         if (opacity !== lastShelfOpacity) {
-          lastShelfOpacity = opacity;
-          blurShelf.style.opacity = opacity;
+          lastShelfOpacity = opacity
+          blurShelf.style.opacity = opacity
         }
       }
 
       // inert 每次赋值都会写属性并触发样式重算，只在状态变化时更新
-      const inert = desktopMedia.matches && (scrolled || isOpen());
+      const inert = desktopMedia.matches && (scrolled || isOpen())
       if (desktopCluster && desktopCluster.inert !== inert)
-        desktopCluster.inert = inert;
-    };
+        desktopCluster.inert = inert
+    }
 
-    let frame = 0;
+    let frame = 0
     const scheduleSync = () => {
-      if (frame) return;
+      if (frame) return
       frame = requestAnimationFrame(() => {
-        frame = 0;
-        syncNavigationState();
-      });
-    };
+        frame = 0
+        syncNavigationState()
+      })
+    }
 
     const setOpen = (open: boolean) => {
-      drawer.dataset.open = String(open);
-      drawer.inert = !open;
-      drawer.setAttribute("aria-hidden", String(!open));
-      button.setAttribute("aria-expanded", String(open));
-      button.setAttribute("aria-label", open ? "关闭网站菜单" : "打开网站菜单");
-      island.toggleAttribute("data-drawer-open", open);
-      syncNavigationState();
-    };
+      drawer.dataset.open = String(open)
+      drawer.inert = !open
+      drawer.setAttribute('aria-hidden', String(!open))
+      button.setAttribute('aria-expanded', String(open))
+      button.setAttribute('aria-label', open ? '关闭网站菜单' : '打开网站菜单')
+      island.toggleAttribute('data-drawer-open', open)
+      syncNavigationState()
+    }
 
     button.addEventListener(
-      "click",
+      'click',
       (event) => {
-        event.stopPropagation();
-        setOpen(!isOpen());
+        event.stopPropagation()
+        setOpen(!isOpen())
       },
-      { signal },
-    );
+      { signal }
+    )
 
     document.addEventListener(
-      "click",
+      'click',
       (event) => {
-        if (isOpen() && !island.contains(event.target as Node)) setOpen(false);
+        if (isOpen() && !island.contains(event.target as Node)) setOpen(false)
       },
-      { signal },
-    );
+      { signal }
+    )
 
     document.addEventListener(
-      "keydown",
+      'keydown',
       (event) => {
-        if (event.key === "Escape" && isOpen()) {
-          setOpen(false);
-          button.focus();
+        if (event.key === 'Escape' && isOpen()) {
+          setOpen(false)
+          button.focus()
         }
       },
-      { signal },
-    );
+      { signal }
+    )
 
-    drawer.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => setOpen(false), { signal });
-    });
+    drawer.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false), { signal })
+    })
 
     const handleBreakpointChange = () => {
-      if (desktopMedia.matches) setOpen(false);
-      else syncNavigationState();
-    };
+      if (desktopMedia.matches) setOpen(false)
+      else syncNavigationState()
+    }
 
-    syncNavigationState();
-    desktopMedia.addEventListener("change", handleBreakpointChange, { signal });
-    window.addEventListener("scroll", scheduleSync, {
+    syncNavigationState()
+    desktopMedia.addEventListener('change', handleBreakpointChange, { signal })
+    window.addEventListener('scroll', scheduleSync, {
       passive: true,
-      signal,
-    });
+      signal
+    })
 
     cleanupNavigation = () => {
-      controller.abort();
-      cancelAnimationFrame(frame);
-    };
-  };
+      controller.abort()
+      cancelAnimationFrame(frame)
+    }
+  }
 
-  document.addEventListener("astro:page-load", setupNavigation);
-  document.addEventListener("astro:before-swap", (event) => {
-    cleanupNavigation();
+  document.addEventListener('astro:page-load', setupNavigation)
+  document.addEventListener('astro:before-swap', (event) => {
+    cleanupNavigation()
 
     // 把当前导航条的收起状态带到新页面：新页面先以相同外观出现，
     // 页面加载后再按新的滚动位置平滑过渡，切页时不会出现两种宽度的导航条交叠。
-    const oldIsland = document.querySelector("#site-island");
-    const oldShelf = document.querySelector<HTMLElement>("#progressive-blur-shelf");
-    const newIsland = event.newDocument.querySelector("#site-island");
-    const newShelf = event.newDocument.querySelector<HTMLElement>("#progressive-blur-shelf");
-    if (oldIsland?.classList.contains("island-scrolled"))
-      newIsland?.classList.add("island-scrolled");
-    if (oldShelf && newShelf) newShelf.style.opacity = oldShelf.style.opacity;
-  });
+    const oldIsland = document.querySelector('#site-island')
+    const oldShelf = document.querySelector<HTMLElement>(
+      '#progressive-blur-shelf'
+    )
+    const newIsland = event.newDocument.querySelector('#site-island')
+    const newShelf = event.newDocument.querySelector<HTMLElement>(
+      '#progressive-blur-shelf'
+    )
+    if (oldIsland?.classList.contains('island-scrolled'))
+      newIsland?.classList.add('island-scrolled')
+    if (oldShelf && newShelf) newShelf.style.opacity = oldShelf.style.opacity
+  })
 </script>

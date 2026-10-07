@@ -12,44 +12,56 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
 ---
 
 <PageLayout {frontmatter}>
-  <div class="not-prose my-8 sm:my-16 select-text" data-pagefind-ignore>
-    
+  <div class="not-prose my-8 select-text sm:my-16" data-pagefind-ignore>
     <!-- 先锋杂志封面式布局网格：双栏非对称排印 -->
-    <div class="border-t-2 border-b-2 border-[var(--text-title)] py-12 sm:py-20 relative">
-      
+    <div
+      class="relative border-t-2 border-b-2 border-[var(--text-title)] py-12 sm:py-20"
+    >
       <!-- 极小上标序列编号 -->
-      <div class="flex items-center justify-between font-mono text-xs uppercase tracking-widest text-muted mb-8 pb-4 hairline-bottom">
+      <div
+        class="text-muted hairline-bottom mb-8 flex items-center justify-between pb-4 font-mono text-xs tracking-widest uppercase"
+      >
         <div class="flex items-center gap-3">
           <span class="text-title font-bold">404</span>
           <span>·</span>
           <span>PAGE NOT FOUND</span>
         </div>
-        <div class="hidden sm:flex items-center gap-4 text-faint">
+        <div class="text-faint hidden items-center gap-4 sm:flex">
           <span>STATIC ARCHIVE</span>
         </div>
       </div>
 
       <!-- 巨型先锋排版焦点 -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-baseline">
-        
+      <div class="grid grid-cols-1 items-baseline gap-8 lg:grid-cols-12">
         <!-- 左侧：超大衬线/等宽混合数字 -->
-        <div class="lg:col-span-7 select-none">
-          <div class="font-serif italic text-8xl sm:text-9xl tracking-tighter text-title leading-none">
+        <div class="select-none lg:col-span-7">
+          <div
+            class="text-title font-serif text-8xl leading-none tracking-tighter italic sm:text-9xl"
+          >
             Void.
           </div>
-          <div class="font-mono text-xs text-muted tracking-widest uppercase mt-4 flex items-start gap-2">
-            <span class="mt-2 inline-block w-6 sm:w-8 shrink-0 h-px bg-[var(--text-title)]"></span>
-            <span class="min-w-0 break-words">ERROR CODE: HTTP_404_PAGE_MISSING</span>
+          <div
+            class="text-muted mt-4 flex items-start gap-2 font-mono text-xs tracking-widest uppercase"
+          >
+            <span
+              class="mt-2 inline-block h-px w-6 shrink-0 bg-[var(--text-title)] sm:w-8"
+            ></span>
+            <span class="min-w-0 break-words"
+              >ERROR CODE: HTTP_404_PAGE_MISSING</span
+            >
           </div>
         </div>
 
         <!-- 右侧：先锋杂志导读块与哲学阐述 -->
-        <div class="lg:col-span-5 flex flex-col justify-between font-sans">
+        <div class="flex flex-col justify-between font-sans lg:col-span-5">
           <div>
-            <p class="text-lg sm:text-xl font-serif italic text-title leading-snug mb-4">
-              “The page you are looking for has been moved, archived, or never existed in this dimension.”
+            <p
+              class="text-title mb-4 font-serif text-lg leading-snug italic sm:text-xl"
+            >
+              “The page you are looking for has been moved, archived, or never
+              existed in this dimension.”
             </p>
-            <p class="text-sm text-muted leading-relaxed font-sans mb-8">
+            <p class="text-muted mb-8 font-sans text-sm leading-relaxed">
               你访问的路径在博客路由拓扑中处于未定义状态。它也许曾作为草稿存在，或在某次架构重构中归于虚无。
             </p>
           </div>
@@ -59,57 +71,75 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
             <a
               href="/"
               data-astro-prefetch
-              class="group flex items-center justify-between border border-border-subtle bg-surface px-3 py-2.5 text-title transition-all hover:border-title no-underline"
+              class="group border-border-subtle bg-surface text-title hover:border-title flex items-center justify-between border px-3 py-2.5 no-underline transition-all"
             >
               <span class="flex items-center gap-2">
-                <span class="text-muted group-hover:text-title transition-colors">01</span>
+                <span
+                  class="text-muted group-hover:text-title transition-colors"
+                  >01</span
+                >
                 <span class="font-sans font-medium">返回主页</span>
               </span>
-              <span class="group-hover:translate-x-1 transition-transform">→</span>
+              <span class="transition-transform group-hover:translate-x-1"
+                >→</span
+              >
             </a>
 
             <a
               href="/search/"
               data-astro-prefetch
-              class="group flex items-center justify-between border border-border-subtle bg-transparent px-3 py-2.5 text-muted transition-all hover:border-title hover:text-title no-underline"
+              class="group border-border-subtle text-muted hover:border-title hover:text-title flex items-center justify-between border bg-transparent px-3 py-2.5 no-underline transition-all"
             >
               <span class="flex items-center gap-2">
-                <span class="text-faint group-hover:text-muted transition-colors">02</span>
+                <span
+                  class="text-faint group-hover:text-muted transition-colors"
+                  >02</span
+                >
                 <span class="font-sans font-medium">检索站点归档</span>
               </span>
-              <span class="group-hover:translate-x-1 transition-transform">↗</span>
+              <span class="transition-transform group-hover:translate-x-1"
+                >↗</span
+              >
             </a>
 
             <button
               id="editorial-back"
               type="button"
-              class="group flex items-center justify-between border border-transparent bg-transparent px-3 py-2.5 text-left text-muted transition-all hover:border-border-subtle hover:text-title"
+              class="group text-muted hover:border-border-subtle hover:text-title flex items-center justify-between border border-transparent bg-transparent px-3 py-2.5 text-left transition-all"
             >
               <span class="flex items-center gap-2">
-                <span class="text-faint group-hover:text-muted transition-colors">03</span>
+                <span
+                  class="text-faint group-hover:text-muted transition-colors"
+                  >03</span
+                >
                 <span class="font-sans font-medium">退回上个页面</span>
               </span>
-              <span class="font-mono text-[10px] text-faint group-hover:text-muted">ESC</span>
+              <span
+                class="text-faint group-hover:text-muted font-mono text-[10px]"
+                >ESC</span
+              >
             </button>
           </div>
         </div>
-
       </div>
 
       <!-- 底部脚注：纯粹的杂志元信息条 -->
-      <div class="mt-12 pt-6 hairline-top flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-[11px] text-muted">
+      <div
+        class="hairline-top text-muted mt-12 flex flex-col justify-between gap-3 pt-6 font-mono text-[11px] sm:flex-row sm:items-center"
+      >
         <div class="flex min-w-0 flex-wrap items-center gap-2">
           <span class="text-faint">$</span>
           <span>REQUEST:</span>
-          <span id="editorial-path" class="min-w-0 break-all text-title font-medium">/</span>
+          <span
+            id="editorial-path"
+            class="text-title min-w-0 font-medium break-all">/</span
+          >
         </div>
-        <div class="flex items-center gap-4 text-faint">
+        <div class="text-faint flex items-center gap-4">
           <span>HTTP_STATUS: 404</span>
         </div>
       </div>
-
     </div>
-
   </div>
 </PageLayout>
 

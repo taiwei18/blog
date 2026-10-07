@@ -8,7 +8,7 @@ import { generateTags } from '@/util/tags'
 import type { InferGetStaticPropsType } from 'astro'
 
 const {
-  tag: { tag, icon }
+  tag: { tag }
 } = Astro.props
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
@@ -36,18 +36,24 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
     <a
       href="/tags/"
       data-magnetic
-      class="group inline-flex items-center gap-1.5 font-mono text-xs text-muted hover:text-title transition-colors"
+      class="group text-muted hover:text-title inline-flex items-center gap-1.5 font-mono text-xs transition-colors"
     >
-      <span class="iconify tabler--arrow-left text-sm transition-transform duration-200 group-hover:-translate-x-0.5"></span>
+      <span
+        class="iconify tabler--arrow-left text-sm transition-transform duration-200 group-hover:-translate-x-0.5"
+      ></span>
       <span>所有标签</span>
     </a>
   </div>
 
-  <div data-entrance data-entrance-order="2" class="mb-10 pb-4 hairline-bottom">
-    <h1 class="font-sans text-2xl sm:text-3xl font-semibold tracking-tight text-title">
+  <div data-entrance data-entrance-order="2" class="hairline-bottom mb-10 pb-4">
+    <h1
+      class="text-title font-sans text-2xl font-semibold tracking-tight sm:text-3xl"
+    >
       #{tag}
     </h1>
-    <p class="font-mono text-xs text-muted mt-1">收录 <span data-counter-target={posts.length}>{posts.length}</span> 篇文章</p>
+    <p class="text-muted mt-1 font-mono text-xs">
+      收录 <span data-counter-target={posts.length}>{posts.length}</span> 篇文章
+    </p>
   </div>
 
   <div class="not-prose">

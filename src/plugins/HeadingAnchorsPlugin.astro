@@ -2,13 +2,22 @@
 
 ---
 
-<div id="heading-toast" class="anchor-toast backdrop-blur-md" role="status" aria-live="polite">
+<div
+  id="heading-toast"
+  class="anchor-toast backdrop-blur-md"
+  role="status"
+  aria-live="polite"
+>
   已复制章节链接
 </div>
 
 <script is:inline data-astro-rerun>
   function setupHeadingAnchors() {
-    const headings = Array.from(document.querySelectorAll('article h2, article h3, article h4, article h5, article h6'))
+    const headings = Array.from(
+      document.querySelectorAll(
+        'article h2, article h3, article h4, article h5, article h6'
+      )
+    )
     const toast = document.getElementById('heading-toast')
     let toastTimeout = null
 
@@ -22,7 +31,11 @@
     }
 
     for (const heading of headings) {
-      if (heading.classList.contains('no-anchor') || heading.querySelector('.heading-link')) continue
+      if (
+        heading.classList.contains('no-anchor') ||
+        heading.querySelector('.heading-link')
+      )
+        continue
       heading.classList.add('group')
       const link = document.createElement('a')
       link.innerText = '#'
@@ -47,7 +60,7 @@
             link.innerText = '#'
             link.classList.remove('text-accent', 'is-copied')
           }, 1500)
-        } catch (_) {
+        } catch {
           window.location.hash = heading.id
         }
       })

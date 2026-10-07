@@ -1,15 +1,12 @@
 <mobile-nav-toggle>
   <button
-    class="group flex size-9 items-center justify-center border border-border-subtle bg-surface/50 text-title transition-all duration-200 hover:border-border-medium hover:bg-card-hover active:scale-95"
+    class="group border-border-subtle bg-surface/50 text-title hover:border-border-medium hover:bg-card-hover flex size-9 items-center justify-center border transition-all duration-200 active:scale-95"
     title="Toggle mobile nav"
     aria-label="打开导航菜单"
     aria-controls="mobile-nav"
     aria-expanded="false"
   >
-    <span
-      aria-hidden="true"
-      class="menu-glyph"
-    ></span>
+    <span aria-hidden="true" class="menu-glyph"></span>
   </button>
 </mobile-nav-toggle>
 
@@ -55,16 +52,31 @@
       }
 
       button.addEventListener('click', handleToggle, { signal })
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && navIsOpen()) {
-          close()
-          button.focus()
-        }
-      }, { signal })
-      document.addEventListener('click', (event) => {
-        if (navIsOpen() && !nav.contains(event.target as Node) && !this.contains(event.target as Node)) close()
-      }, { signal })
-      window.matchMedia('(min-width: 640px)').addEventListener('change', () => close(), { signal })
+      document.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape' && navIsOpen()) {
+            close()
+            button.focus()
+          }
+        },
+        { signal }
+      )
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (
+            navIsOpen() &&
+            !nav.contains(event.target as Node) &&
+            !this.contains(event.target as Node)
+          )
+            close()
+        },
+        { signal }
+      )
+      window
+        .matchMedia('(min-width: 640px)')
+        .addEventListener('change', () => close(), { signal })
     }
   }
 

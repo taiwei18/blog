@@ -13,9 +13,7 @@ export default defineThemeConfig({
     { label: '关于', href: '/about/' },
     {
       label: '其它页面',
-      children: [
-        { label: '404 页面', href: '/404' }
-      ]
+      children: [{ label: '404 页面', href: '/404' }]
     }
   ],
   footerItems: [

@@ -1,74 +1,74 @@
-import config from "@/theme.config";
-import urlEncodedLogo from "./urlEncodedLogo";
+import config from '@/theme.config'
+import urlEncodedLogo from './urlEncodedLogo'
 
-const { title: siteTitle } = config;
+const { title: siteTitle } = config
 
 export default (accent: string, bg: string) =>
   (title: string, description: string, author: string) => ({
-    type: "div",
+    type: 'div',
     props: {
       tw: `flex flex-col w-full h-full p-8 bg-${bg} text-${accent}`,
       children: [
         {
-          type: "div",
+          type: 'div',
           props: {
-            tw: "flex",
+            tw: 'flex',
             children: [
               {
-                type: "img",
+                type: 'img',
                 props: {
                   src: urlEncodedLogo,
                   height: 48,
-                  width: 48,
-                },
+                  width: 48
+                }
               },
               {
-                type: "span",
+                type: 'span',
                 props: {
-                  tw: "ml-4 text-5xl font-bold",
-                  children: [siteTitle],
-                },
-              },
-            ],
-          },
+                  tw: 'ml-4 text-5xl font-bold',
+                  children: [siteTitle]
+                }
+              }
+            ]
+          }
         },
         {
-          type: "div",
+          type: 'div',
           props: {
-            tw: "flex flex-col w-full h-full justify-center items-center p-12",
+            tw: 'flex flex-col w-full h-full justify-center items-center p-12',
             children: [
               {
-                type: "div",
+                type: 'div',
                 props: {
                   tw: `flex flex-col border-4 p-8 rounded-lg border-${accent}/50`,
                   children: [
                     {
-                      type: "span",
+                      type: 'span',
                       props: {
-                        tw: "text-7xl font-bold",
-                        children: [title],
-                      },
+                        tw: 'text-7xl font-bold',
+                        children: [title]
+                      }
                     },
                     {
-                      type: "span",
+                      type: 'span',
                       props: {
-                        tw: "text-4xl mt-8 font-semibold",
-                        children: [description],
-                      },
+                        tw: 'text-4xl mt-8 font-semibold',
+                        children: [description]
+                      }
                     },
                     {
-                      type: "div",
+                      type: 'div',
                       props: {
-                        tw: "flex justify-end text-3xl mt-8",
-                        children: [`by ${author}`],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        },
-      ],
-    },
-  });
+                        tw: 'flex justify-end text-3xl mt-8',
+                        children: [`by ${author}`]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  })

@@ -1,29 +1,29 @@
 ---
-import logo from "@/assets/logo.svg";
-import { Image } from "astro:assets";
+import logo from '@/assets/logo.svg'
+import { Image } from 'astro:assets'
 
 export interface Props {
   frontmatter: Partial<{
-    gradient: boolean;
-    background: boolean;
-    logo: boolean;
-  }>;
+    gradient: boolean
+    background: boolean
+    logo: boolean
+  }>
 }
 
-const { gradient, background, logo: showLogo } = Astro.props.frontmatter;
+const { gradient, background, logo: showLogo } = Astro.props.frontmatter
 ---
 
 <div class="w-fit">
   <div
     class:list={[
-      "text-accent relative mb-1 w-fit pb-2 text-5xl font-bold tracking-tight sm:mb-2 sm:text-8xl",
+      'text-accent relative mb-1 w-fit pb-2 text-5xl font-bold tracking-tight sm:mb-2 sm:text-8xl',
       {
-        "from-accent via-accent/75 to-accent/50 bg-linear-to-r bg-clip-text text-transparent":
-          gradient,
+        'from-accent via-accent/75 to-accent/50 bg-linear-to-r bg-clip-text text-transparent':
+          gradient
       },
       {
-        "mb-2 sm:mb-8": background,
-      },
+        'mb-2 sm:mb-8': background
+      }
     ]}
   >
     <div
@@ -33,24 +33,26 @@ const { gradient, background, logo: showLogo } = Astro.props.frontmatter;
       {
         showLogo && (
           <div class="relative flex items-center justify-center">
-            <span class="bg-accent/25 absolute inset-0 -z-1 rounded-full blur-xl opacity-0 transition-opacity duration-500 group-hover/hero:opacity-100" />
+            <span class="bg-accent/25 absolute inset-0 -z-1 rounded-full opacity-0 blur-xl transition-opacity duration-500 group-hover/hero:opacity-100" />
             <Image
               loading="eager"
               alt="Nordlys logo, simplified northern lights aurora visualization"
               src={logo}
-              class="h-12 w-fit object-scale-down transition-transform duration-500 ease-out sm:h-24 group-hover/hero:scale-105 group-hover/hero:rotate-3"
+              class="h-12 w-fit object-scale-down transition-transform duration-500 ease-out group-hover/hero:scale-105 group-hover/hero:rotate-3 sm:h-24"
             />
           </div>
         )
       }
-      <h1 class="transition-transform duration-300 ease-out group-hover/hero:translate-x-1">
+      <h1
+        class="transition-transform duration-300 ease-out group-hover/hero:translate-x-1"
+      >
         <slot />
       </h1>
     </div>
     {
       background && (
         <span
-          class:list={["bg-accent/75 absolute inset-0 h-full w-full blur-3xl"]}
+          class:list={['bg-accent/75 absolute inset-0 h-full w-full blur-3xl']}
         />
       )
     }

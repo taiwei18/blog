@@ -1,9 +1,9 @@
-import config from "@/theme.config";
-import { getPosts } from "@/util/posts";
-import rss from "@astrojs/rss";
+import config from '@/theme.config'
+import { getPosts } from '@/util/posts'
+import rss from '@astrojs/rss'
 
 export async function GET() {
-  const posts = await getPosts();
+  const posts = await getPosts()
 
   return rss({
     title: config.title,
@@ -13,8 +13,8 @@ export async function GET() {
       link: `posts/${id}/`,
       title: data.title,
       description: data.description,
-      pubDate: new Date(data.publishedDate),
+      pubDate: new Date(data.publishedDate)
     })),
-    customData: `<language>${config.locale}</language>`,
-  });
+    customData: `<language>${config.locale}</language>`
+  })
 }

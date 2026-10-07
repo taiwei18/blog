@@ -14,72 +14,74 @@
 <script>
   class DarkLightToggle extends HTMLElement {
     connectedCallback() {
-      const button = this.querySelector("button");
+      const button = this.querySelector('button')
 
-      if (!button) return;
+      if (!button) return
 
       button.setAttribute(
-        "aria-label",
-        window.mode.getMode() === "light" ? "切换至深色主题" : "切换至浅色主题",
-      );
-      let transitioning = false;
+        'aria-label',
+        window.mode.getMode() === 'light' ? '切换至深色主题' : '切换至浅色主题'
+      )
+      let transitioning = false
 
       const handleToggle = (event: MouseEvent) => {
-        if (transitioning) return;
-        const newMode = window.mode.getMode() === "light" ? "dark" : "light";
+        if (transitioning) return
+        const newMode = window.mode.getMode() === 'light' ? 'dark' : 'light'
 
         const switchMode = () => {
-          window.mode.setMode(newMode);
+          window.mode.setMode(newMode)
           document
-            .querySelectorAll("dark-light-toggle button")
+            .querySelectorAll('dark-light-toggle button')
             .forEach((toggle) => {
               toggle.setAttribute(
-                "aria-label",
-                newMode === "light" ? "切换至深色主题" : "切换至浅色主题",
-              );
+                'aria-label',
+                newMode === 'light' ? '切换至深色主题' : '切换至浅色主题'
+              )
               // 图标切换时旋入，避免月亮/太阳硬切
-              if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-                toggle.querySelector(".iconify")?.animate(
+              if (
+                !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              )
+                toggle.querySelector('.iconify')?.animate(
                   // 只给起始帧：结束于元素当前值（悬停时为 rotate-12），不会回弹跳变
-                  [{ rotate: "-90deg", scale: "0.5", opacity: 0, offset: 0 }],
-                  { duration: 420, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
-                );
-            });
-        };
+                  [{ rotate: '-90deg', scale: '0.5', opacity: 0, offset: 0 }],
+                  { duration: 420, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+                )
+            })
+        }
 
         const useSimpleTransition =
           !document.startViewTransition ||
-          window.matchMedia("(pointer: coarse)").matches ||
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          window.matchMedia('(pointer: coarse)').matches ||
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
         // Mobile browsers have inconsistent View Transition support. Apply the
         // mode synchronously there so a tap can never be swallowed by a
         // partially implemented transition API.
         if (useSimpleTransition) {
-          switchMode();
-          return;
+          switchMode()
+          return
         }
 
-        const rect = button.getBoundingClientRect();
+        const rect = button.getBoundingClientRect()
         const x =
-          event.detail === 0 ? rect.left + rect.width / 2 : event.clientX;
+          event.detail === 0 ? rect.left + rect.width / 2 : event.clientX
         const y =
-          event.detail === 0 ? rect.top + rect.height / 2 : event.clientY;
+          event.detail === 0 ? rect.top + rect.height / 2 : event.clientY
         const endRadius = Math.hypot(
           Math.max(x, window.innerWidth - x),
-          Math.max(y, window.innerHeight - y),
-        );
+          Math.max(y, window.innerHeight - y)
+        )
 
         try {
-          transitioning = true;
-          document.documentElement.classList.add("theme-transition");
-          const transition = document.startViewTransition(switchMode);
+          transitioning = true
+          document.documentElement.classList.add('theme-transition')
+          const transition = document.startViewTransition(switchMode)
           void transition.finished
             .finally(() => {
-              transitioning = false;
-              document.documentElement.classList.remove("theme-transition");
+              transitioning = false
+              document.documentElement.classList.remove('theme-transition')
             })
-            .catch(() => {});
+            .catch(() => {})
 
           transition.ready
             .then(() => {
@@ -87,30 +89,30 @@
                 {
                   clipPath: [
                     `circle(0px at ${x}px ${y}px)`,
-                    `circle(${endRadius}px at ${x}px ${y}px)`,
-                  ],
+                    `circle(${endRadius}px at ${x}px ${y}px)`
+                  ]
                 },
                 {
                   duration: 450,
-                  easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-                  pseudoElement: "::view-transition-new(root)",
-                },
-              );
+                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  pseudoElement: '::view-transition-new(root)'
+                }
+              )
             })
-            .catch(() => {});
+            .catch(() => {})
         } catch {
-          transitioning = false;
-          document.documentElement.classList.remove("theme-transition");
-          switchMode();
+          transitioning = false
+          document.documentElement.classList.remove('theme-transition')
+          switchMode()
         }
-      };
+      }
 
-      button.addEventListener("click", handleToggle);
+      button.addEventListener('click', handleToggle)
     }
   }
 
-  if (!customElements.get("dark-light-toggle"))
-    customElements.define("dark-light-toggle", DarkLightToggle);
+  if (!customElements.get('dark-light-toggle'))
+    customElements.define('dark-light-toggle', DarkLightToggle)
 </script>
 
 <style is:global>

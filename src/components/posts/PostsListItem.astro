@@ -10,26 +10,31 @@ const { id, data } = Astro.props.post
 ---
 
 <article data-reveal class="post-row group py-6 first:pt-0 last:pb-0">
-  <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 mb-2">
+  <div
+    class="mb-2 flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-4"
+  >
     <a
-      class="interactive-underline font-sans text-lg font-medium text-title inline-flex items-center gap-2 no-underline"
+      class="interactive-underline text-title inline-flex items-center gap-2 font-sans text-lg font-medium no-underline"
       href={`/posts/${id}/`}
       data-astro-prefetch
     >
       <span>{data.title}</span>
-      <span aria-hidden="true" class="post-arrow flex size-4 shrink-0 items-center justify-center border border-border-subtle bg-surface/80 text-[10px] text-accent transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+      <span
+        aria-hidden="true"
+        class="post-arrow border-border-subtle bg-surface/80 text-accent flex size-4 shrink-0 items-center justify-center border text-[10px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+      >
         <span class="iconify tabler--arrow-up-right text-[11px]"></span>
       </span>
     </a>
     <time
-      class="shrink-0 font-mono text-xs text-muted tabular-nums"
+      class="text-muted shrink-0 font-mono text-xs tabular-nums"
       datetime={data.publishedDate.toISOString()}
     >
       {toDateString(data.publishedDate)}
     </time>
   </div>
 
-  <p class="text-sm text-body leading-relaxed font-sans line-clamp-2">
+  <p class="text-body line-clamp-2 font-sans text-sm leading-relaxed">
     {data.description}
   </p>
 
@@ -38,7 +43,7 @@ const { id, data } = Astro.props.post
       data.tags.map((tag: string) => (
         <a
           href={`/tags/${tag}/`}
-          class="font-mono text-xs text-muted hover:text-title hover:bg-surface-hover px-1.5 py-0.5 transition-colors"
+          class="text-muted hover:text-title hover:bg-surface-hover px-1.5 py-0.5 font-mono text-xs transition-colors"
         >
           #{tag}
         </a>

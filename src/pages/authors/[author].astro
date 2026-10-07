@@ -1,31 +1,31 @@
 ---
-import PostsList from "@/components/posts/PostsList.astro";
+import PostsList from '@/components/posts/PostsList.astro'
 import PageLayout, {
-  type Props as PageLayoutProps,
-} from "@/layouts/PageLayout.astro";
-import { generateAuthors, getPosts } from "@/util/posts";
-import type { InferGetStaticPropsType } from "astro";
+  type Props as PageLayoutProps
+} from '@/layouts/PageLayout.astro'
+import { generateAuthors, getPosts } from '@/util/posts'
+import type { InferGetStaticPropsType } from 'astro'
 
 export async function getStaticPaths() {
-  const authors = await generateAuthors();
+  const authors = await generateAuthors()
 
   return authors.map((author) => ({
     params: { author },
-    props: { author },
-  }));
+    props: { author }
+  }))
 }
 
-const { author } = Astro.props;
+const { author } = Astro.props
 
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
-const posts = await getPosts(undefined, author);
+const posts = await getPosts(undefined, author)
 
-const frontmatter: PageLayoutProps["frontmatter"] = {
+const frontmatter: PageLayoutProps['frontmatter'] = {
   title: `作者：${author}`,
   description: `浏览 ${author} 发布的 ${posts.length} 篇前端开发、产品工程与 AI 编码实践文章。`,
-  activeHeaderLink: "Blog",
-};
+  activeHeaderLink: 'Blog'
+}
 ---
 
 <PageLayout {frontmatter}>

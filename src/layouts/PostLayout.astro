@@ -32,7 +32,8 @@ const authorURL = new URL(
   Astro.site
 ).href
 const openGraphImage = post.data.openGraphImage || `/posts/${post.id}.png`
-const openGraphImageUrl = new URL(resolveImageUrl(openGraphImage), Astro.site).href
+const openGraphImageUrl = new URL(resolveImageUrl(openGraphImage), Astro.site)
+  .href
 const dateModified = post.data.updatedDate || post.data.publishedDate
 
 const frontmatter: PageLayoutProps['frontmatter'] = {
@@ -88,30 +89,40 @@ frontmatter.keywords = [post.data.title, ...post.data.tags]
     <a
       href="/posts/"
       data-magnetic
-      class="group inline-flex items-center gap-1.5 font-mono text-xs text-muted hover:text-title transition-colors"
+      class="group text-muted hover:text-title inline-flex items-center gap-1.5 font-mono text-xs transition-colors"
     >
-      <span class="iconify tabler--arrow-left text-sm transition-transform duration-200 group-hover:-translate-x-0.5"></span>
+      <span
+        class="iconify tabler--arrow-left text-sm transition-transform duration-200 group-hover:-translate-x-0.5"
+      ></span>
       <span>cd ..</span>
     </a>
   </div>
 
   <!-- 杂志与工坊式文章标题排印 -->
-  <header data-entrance data-entrance-order="2" class="mb-12 pb-8 hairline-bottom">
-    <div class="flex items-center gap-3 text-xs font-mono text-muted mb-4">
+  <header
+    data-entrance
+    data-entrance-order="2"
+    class="hairline-bottom mb-12 pb-8"
+  >
+    <div class="text-muted mb-4 flex items-center gap-3 font-mono text-xs">
       <time datetime={post.data.publishedDate.toISOString()}>
         {toDateString(post.data.publishedDate)}
       </time>
       <span>·</span>
       <span>{readingTime}</span>
-      {wordCount && (
-        <>
-          <span>·</span>
-          <span>{wordCount} 字</span>
-        </>
-      )}
+      {
+        wordCount && (
+          <>
+            <span>·</span>
+            <span>{wordCount} 字</span>
+          </>
+        )
+      }
     </div>
 
-    <h1 class="font-sans text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-title leading-snug mb-6 text-balance">
+    <h1
+      class="text-title mb-6 font-sans text-2xl leading-snug font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl"
+    >
       {frontmatter.title}
     </h1>
 
@@ -122,12 +133,12 @@ frontmatter.keywords = [post.data.title, ...post.data.tags]
 
   {
     !!post.data.showToC && headings.length >= 2 && (
-      <div
-        slot="aside"
-        class="border-l border-border-subtle pl-4 py-1"
-      >
-        <div class="font-mono text-[11px] uppercase tracking-widest text-muted mb-3.5 flex items-center gap-1.5">
-          <span class="iconify tabler--list-tree text-accent text-xs" aria-hidden="true" />
+      <div slot="aside" class="border-border-subtle border-l py-1 pl-4">
+        <div class="text-muted mb-3.5 flex items-center gap-1.5 font-mono text-[11px] tracking-widest uppercase">
+          <span
+            class="iconify tabler--list-tree text-accent text-xs"
+            aria-hidden="true"
+          />
           <span>On this page</span>
         </div>
         <ToC {headings} />
@@ -146,7 +157,7 @@ frontmatter.keywords = [post.data.title, ...post.data.tags]
   <article
     data-pagefind-body
     data-pagefind-filter="type:post"
-    class="prose max-w-none text-body font-sans text-base leading-relaxed"
+    class="prose text-body max-w-none font-sans text-base leading-relaxed"
   >
     <Content />
   </article>

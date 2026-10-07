@@ -32,11 +32,15 @@
       // 1. 首屏入场：标题、页面头部等关键区块依次浮现
       const entrances = gsap.utils.toArray<HTMLElement>('[data-entrance]')
       const lines = gsap.utils.toArray<HTMLElement>('[data-title-line]')
-      const entranceTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      const entranceTimeline = gsap.timeline({
+        defaults: { ease: 'power3.out' }
+      })
       activeTweens.add(entranceTimeline)
 
       entrances.sort(
-        (a, b) => Number(a.dataset.entranceOrder ?? 0) - Number(b.dataset.entranceOrder ?? 0)
+        (a, b) =>
+          Number(a.dataset.entranceOrder ?? 0) -
+          Number(b.dataset.entranceOrder ?? 0)
       )
 
       if (entrances.length) {
@@ -62,22 +66,41 @@
       // 2. 列表区块：只有首屏可见的部分接在入场后依次浮现；
       //    首屏以下直接显示，滚动时内容已就位，不会再闪烁或迟到。
       const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal]')
-      const inView = reveals.filter((el) => el.getBoundingClientRect().top < viewportBottom)
+      const inView = reveals.filter(
+        (el) => el.getBoundingClientRect().top < viewportBottom
+      )
       markShown(reveals)
 
       inView.forEach((target, index) => {
         const delay = 0.1 + Math.min(index * 0.04, 0.24)
-        const childItems = target.querySelectorAll<HTMLElement>('[data-reveal-child]')
+        const childItems = target.querySelectorAll<HTMLElement>(
+          '[data-reveal-child]'
+        )
         const tween = childItems.length
           ? gsap.fromTo(
               childItems,
               { y: 8, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.45, stagger: 0.03, delay, ease: 'power3.out', ...reset }
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.45,
+                stagger: 0.03,
+                delay,
+                ease: 'power3.out',
+                ...reset
+              }
             )
           : gsap.fromTo(
               target,
               { y: 10, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.5, delay, ease: 'power3.out', ...reset }
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.5,
+                delay,
+                ease: 'power3.out',
+                ...reset
+              }
             )
         tween.eventCallback('onComplete', () => {
           activeTweens.delete(tween)
@@ -113,10 +136,13 @@
         },
         { threshold: 0.2 }
       )
-      document.querySelectorAll('[data-counter-target]').forEach((el) => counterObserver.observe(el))
+      document
+        .querySelectorAll('[data-counter-target]')
+        .forEach((el) => counterObserver.observe(el))
 
       // 4. Spotlight card pointer tracking
-      const spotlightCards = document.querySelectorAll<HTMLElement>('[data-spotlight]')
+      const spotlightCards =
+        document.querySelectorAll<HTMLElement>('[data-spotlight]')
       spotlightCards.forEach((card) => {
         card.addEventListener(
           'pointermove',
@@ -140,7 +166,9 @@
       })
 
       // 5. Restrained Magnetic Micro-interaction on buttons & interactive tags
-      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      const finePointer = window.matchMedia(
+        '(hover: hover) and (pointer: fine)'
+      ).matches
       const magneticElements = finePointer
         ? document.querySelectorAll<HTMLElement>('[data-magnetic]')
         : []
@@ -155,8 +183,14 @@
             const centerX = rect.left + rect.width / 2
             const centerY = rect.top + rect.height / 2
             // Clamp offset to maximum 3.5px for understated tactile feel
-            const deltaX = Math.max(-3.5, Math.min(3.5, (e.clientX - centerX) * 0.2))
-            const deltaY = Math.max(-3.5, Math.min(3.5, (e.clientY - centerY) * 0.2))
+            const deltaX = Math.max(
+              -3.5,
+              Math.min(3.5, (e.clientX - centerX) * 0.2)
+            )
+            const deltaY = Math.max(
+              -3.5,
+              Math.min(3.5, (e.clientY - centerY) * 0.2)
+            )
             xTo(deltaX)
             yTo(deltaY)
           },
@@ -180,7 +214,12 @@
           const target = event.target as HTMLElement
           if (target.closest('section, main')) entranceTimeline.progress(1)
           const element = target.closest('[data-reveal]')
-          if (element) gsap.set(element, { y: 0, opacity: 1, clearProps: 'transform,opacity' })
+          if (element)
+            gsap.set(element, {
+              y: 0,
+              opacity: 1,
+              clearProps: 'transform,opacity'
+            })
         },
         { signal }
       )

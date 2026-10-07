@@ -14,41 +14,45 @@ const { posts } = Astro.props
     posts.map((post) => {
       const { id, data } = post
       return (
-        <article data-reveal class="post-row group border-b border-border-subtle py-6 sm:py-7">
+        <article
+          data-reveal
+          class="post-row group border-border-subtle border-b py-6 sm:py-7"
+        >
           <div class="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
             <a
-              class="interactive-underline inline-flex items-start gap-2.5 text-lg font-medium tracking-tight text-title no-underline"
+              class="interactive-underline text-title inline-flex items-start gap-2.5 text-lg font-medium tracking-tight no-underline"
               href={`/posts/${id}/`}
               data-astro-prefetch
             >
               <span>{data.title}</span>
-              <span aria-hidden="true" class="post-arrow flex size-4 shrink-0 items-center justify-center border border-border-subtle bg-surface/80 text-[10px] text-accent mt-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <span class="iconify tabler--arrow-up-right text-[11px]"></span>
+              <span
+                aria-hidden="true"
+                class="post-arrow border-border-subtle bg-surface/80 text-accent mt-1 flex size-4 shrink-0 items-center justify-center border text-[10px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              >
+                <span class="iconify tabler--arrow-up-right text-[11px]" />
               </span>
             </a>
             <time
-              class="shrink-0 font-mono text-xs text-muted tabular-nums"
+              class="text-muted shrink-0 font-mono text-xs tabular-nums"
               datetime={data.publishedDate.toISOString()}
             >
               {toDateString(data.publishedDate)}
             </time>
           </div>
 
-          <p class="mt-3 max-w-xl text-sm leading-7 text-body line-clamp-2">
+          <p class="text-body mt-3 line-clamp-2 max-w-xl text-sm leading-7">
             {data.description}
           </p>
 
           <div class="mt-4 flex flex-wrap items-center gap-2">
-            {
-              data.tags.map((tag: string) => (
-                <a
-                  href={`/tags/${tag}/`}
-                  class="font-mono text-[0.68rem] text-muted transition-colors hover:text-accent"
-                >
-                  #{tag}
-                </a>
-              ))
-            }
+            {data.tags.map((tag: string) => (
+              <a
+                href={`/tags/${tag}/`}
+                class="text-muted hover:text-accent font-mono text-[0.68rem] transition-colors"
+              >
+                #{tag}
+              </a>
+            ))}
           </div>
         </article>
       )

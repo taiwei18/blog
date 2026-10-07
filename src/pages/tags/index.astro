@@ -1,37 +1,45 @@
 ---
 import PageLayout, {
-  type Props as PageLayoutProps,
-} from "@/layouts/PageLayout.astro";
-import { generateTags, getTagUsage } from "@/util/tags";
-import { getPosts } from "@/util/posts";
+  type Props as PageLayoutProps
+} from '@/layouts/PageLayout.astro'
+import { generateTags, getTagUsage } from '@/util/tags'
+import { getPosts } from '@/util/posts'
 
-const tags = await generateTags();
-const totalPosts = (await getPosts()).length;
+const tags = await generateTags()
+const totalPosts = (await getPosts()).length
 
 const tagsWithUsage = await Promise.all(
   tags.map(async (t) => ({
     ...t,
-    usage: await getTagUsage(t.tag),
+    usage: await getTagUsage(t.tag)
   }))
-);
+)
 
 // 按文章数量降序排序，数量相同按字母排序
-tagsWithUsage.sort((a, b) => b.usage - a.usage || a.tag.localeCompare(b.tag));
+tagsWithUsage.sort((a, b) => b.usage - a.usage || a.tag.localeCompare(b.tag))
 
-const frontmatter: PageLayoutProps["frontmatter"] = {
-  title: "标签",
+const frontmatter: PageLayoutProps['frontmatter'] = {
+  title: '标签',
   description: `按 ${tagsWithUsage.length} 个技术标签浏览 TaiWei 的 ${totalPosts} 篇前端开发、工程化与 AI 编码实践文章。`,
-  activeHeaderLink: "标签",
-};
+  activeHeaderLink: '标签'
+}
 ---
 
 <PageLayout {frontmatter}>
-  <div data-entrance class="mb-10 border-b border-border-subtle pb-6">
-    <h1 class="font-sans text-3xl font-semibold tracking-[-0.04em] text-title sm:text-4xl">标签</h1>
-    <p class="mt-3 text-sm leading-7 text-muted">共 <span data-counter-target={tagsWithUsage.length}>{tagsWithUsage.length}</span> 个技术维度与分类。</p>
+  <div data-entrance class="border-border-subtle mb-10 border-b pb-6">
+    <h1
+      class="text-title font-sans text-3xl font-semibold tracking-[-0.04em] sm:text-4xl"
+    >
+      标签
+    </h1>
+    <p class="text-muted mt-3 text-sm leading-7">
+      共 <span data-counter-target={tagsWithUsage.length}
+        >{tagsWithUsage.length}</span
+      > 个技术维度与分类。
+    </p>
   </div>
 
-  <div data-reveal class="not-prose grid grid-cols-2 sm:grid-cols-3 gap-3">
+  <div data-reveal class="not-prose grid grid-cols-2 gap-3 sm:grid-cols-3">
     {
       tagsWithUsage.map(({ tag, usage }) => (
         <a
@@ -41,10 +49,10 @@ const frontmatter: PageLayoutProps["frontmatter"] = {
           href={`/tags/${tag}/`}
           data-astro-prefetch
         >
-          <span class="font-sans text-sm text-body group-hover:text-title transition-colors truncate">
+          <span class="text-body group-hover:text-title truncate font-sans text-sm transition-colors">
             #{tag}
           </span>
-          <span class="font-mono text-xs text-muted tabular-nums group-hover:text-title">
+          <span class="text-muted group-hover:text-title font-mono text-xs tabular-nums">
             {usage}
           </span>
         </a>

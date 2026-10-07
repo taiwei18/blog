@@ -1,86 +1,86 @@
-import type { AstroExpressiveCodeOptions } from "astro-expressive-code";
-import type { SetOptional } from "type-fest";
+import type { AstroExpressiveCodeOptions } from 'astro-expressive-code'
+import type { SetOptional } from 'type-fest'
 
-export type Icon = `tabler--${string}`;
+export type Icon = `tabler--${string}`
 
 export interface ResolvedTag {
-  tag: string;
-  icon: Icon;
+  tag: string
+  icon: Icon
 }
 
 export interface NavItem {
-  label: string;
-  href: string;
-  icon?: Icon;
+  label: string
+  href: string
+  icon?: Icon
 }
 
 export interface NavItemParent {
-  label: string;
-  icon?: Icon;
-  children: NavItem[];
+  label: string
+  icon?: Icon
+  children: NavItem[]
 }
 
-export type HeaderItem = NavItem | NavItemParent;
+export type HeaderItem = NavItem | NavItemParent
 
-const Modes = ["dark", "light"] as const;
+const Modes = ['dark', 'light'] as const
 
 export const ColorSchemes = [
-  "scheme-mono",
-  "scheme-nord",
-  "scheme-aurora",
-] as const;
+  'scheme-mono',
+  'scheme-nord',
+  'scheme-aurora'
+] as const
 
-export const ViewOptions = ["list", "grid"] as const;
+export const ViewOptions = ['list', 'grid'] as const
 
-export type Mode = (typeof Modes)[number];
-export type ColorScheme = (typeof ColorSchemes)[number];
-export type ViewOption = (typeof ViewOptions)[number];
+export type Mode = (typeof Modes)[number]
+export type ColorScheme = (typeof ColorSchemes)[number]
+export type ViewOption = (typeof ViewOptions)[number]
 
 export interface ThemeConfig {
-  site: string;
-  title: string;
-  description: string;
-  author: string;
-  navbarItems: HeaderItem[];
-  footerItems: NavItem[];
+  site: string
+  title: string
+  description: string
+  author: string
+  navbarItems: HeaderItem[]
+  footerItems: NavItem[]
 
-  locale: string;
-  mode: Mode;
-  modeToggle: boolean;
-  colorScheme: ColorScheme;
-  openGraphImage: ImageMetadata | string | undefined;
-  postsPerPage: number;
-  postsView: ViewOption;
-  scrollProgress: boolean;
-  scrollToTop: boolean;
-  tagIcons: Record<string, Icon>;
-  defaultTagIcon?: Icon;
-  expressiveCodeThemes: AstroExpressiveCodeOptions["themes"];
+  locale: string
+  mode: Mode
+  modeToggle: boolean
+  colorScheme: ColorScheme
+  openGraphImage: ImageMetadata | string | undefined
+  postsPerPage: number
+  postsView: ViewOption
+  scrollProgress: boolean
+  scrollToTop: boolean
+  tagIcons: Record<string, Icon>
+  defaultTagIcon?: Icon
+  expressiveCodeThemes: AstroExpressiveCodeOptions['themes']
 }
 
 const defaults = {
-  locale: "en",
+  locale: 'en',
   mode: Modes[0],
   modeToggle: true,
   colorScheme: ColorSchemes[0],
   openGraphImage: undefined,
   postsPerPage: 4,
-  postsView: "list" as ViewOption,
+  postsView: 'list' as ViewOption,
   scrollProgress: false,
   scrollToTop: true,
   tagIcons: {},
-  defaultTagIcon: "tabler--hash" as Icon,
+  defaultTagIcon: 'tabler--hash' as Icon,
   expressiveCodeThemes: [
-    "vitesse-light",
-    "vitesse-black",
-  ] as AstroExpressiveCodeOptions["themes"],
-};
+    'vitesse-light',
+    'vitesse-black'
+  ] as AstroExpressiveCodeOptions['themes']
+}
 
-type PartialThemeConfig = SetOptional<ThemeConfig, keyof typeof defaults>;
+type PartialThemeConfig = SetOptional<ThemeConfig, keyof typeof defaults>
 
 export const defineThemeConfig = (config: PartialThemeConfig): ThemeConfig => {
   return {
     ...defaults,
-    ...config,
-  };
-};
+    ...config
+  }
+}
