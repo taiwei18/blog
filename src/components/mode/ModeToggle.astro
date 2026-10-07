@@ -4,10 +4,10 @@
     class="group text-muted hover:border-border-subtle hover:bg-card-hover hover:text-title flex size-7 items-center justify-center border border-transparent transition-[color,background-color,border-color,scale] duration-200 active:scale-90"
     aria-label="Toggle dark & light mode"
   >
-    <span
-      aria-hidden="true"
-      class="iconify tabler--moon dark:tabler--sun text-sm transition-transform duration-300 ease-out group-hover:rotate-12"
-    ></span>
+    <span class="mode-icons grid text-sm" aria-hidden="true">
+      <span class="mode-icon mode-icon-moon iconify tabler--moon"></span>
+      <span class="mode-icon mode-icon-sun iconify tabler--sun"></span>
+    </span>
   </button>
 </dark-light-toggle>
 
@@ -24,30 +24,32 @@
       )
       let transitioning = false
 
-      const handleToggle = (event: MouseEvent) => {
+      const handleToggle = () => {
         if (transitioning) return
+        const root = document.documentElement
         const newMode = window.mode.getMode() === 'light' ? 'dark' : 'light'
 
         const switchMode = () => {
           window.mode.setMode(newMode)
           document
             .querySelectorAll('dark-light-toggle button')
-            .forEach((toggle) => {
+            .forEach((toggle) =>
               toggle.setAttribute(
                 'aria-label',
                 newMode === 'light' ? '切换至深色主题' : '切换至浅色主题'
               )
-              // 图标切换时旋入，避免月亮/太阳硬切
-              if (
-                !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-              )
-                toggle.querySelector('.iconify')?.animate(
-                  // 只给起始帧：结束于元素当前值（悬停时为 rotate-12），不会回弹跳变
-                  [{ rotate: '-90deg', scale: '0.5', opacity: 0, offset: 0 }],
-                  { duration: 420, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
-                )
-            })
+            )
         }
+
+        // 换色期间关掉全站的颜色过渡（图标换位除外）：否则 body、页脚、顶栏
+        // 各按 240~300ms 各自渐变，新主题截图是变色到一半的页面
+        root.classList.add('theme-switching')
+        const releaseTransitions = () =>
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() =>
+              root.classList.remove('theme-switching')
+            )
+          )
 
         const useSimpleTransition =
           !document.startViewTransition ||
@@ -59,51 +61,31 @@
         // partially implemented transition API.
         if (useSimpleTransition) {
           switchMode()
+          releaseTransitions()
           return
         }
 
-        const rect = button.getBoundingClientRect()
-        const x =
-          event.detail === 0 ? rect.left + rect.width / 2 : event.clientX
-        const y =
-          event.detail === 0 ? rect.top + rect.height / 2 : event.clientY
-        const endRadius = Math.hypot(
-          Math.max(x, window.innerWidth - x),
-          Math.max(y, window.innerHeight - y)
-        )
-
         try {
           transitioning = true
-          document.documentElement.classList.add('theme-transition')
+          root.classList.add('theme-transition')
+          // 被点击的按钮单独成层：它在整页淡化之上实时播放图标换位，
+          // 而不是被截成新旧两张图互相叠影
+          button.style.viewTransitionName = 'mode-toggle'
           const transition = document.startViewTransition(switchMode)
           void transition.finished
             .finally(() => {
               transitioning = false
-              document.documentElement.classList.remove('theme-transition')
-            })
-            .catch(() => {})
-
-          transition.ready
-            .then(() => {
-              document.documentElement.animate(
-                {
-                  clipPath: [
-                    `circle(0px at ${x}px ${y}px)`,
-                    `circle(${endRadius}px at ${x}px ${y}px)`
-                  ]
-                },
-                {
-                  duration: 450,
-                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-                  pseudoElement: '::view-transition-new(root)'
-                }
-              )
+              root.classList.remove('theme-transition')
+              button.style.viewTransitionName = ''
+              releaseTransitions()
             })
             .catch(() => {})
         } catch {
           transitioning = false
-          document.documentElement.classList.remove('theme-transition')
+          root.classList.remove('theme-transition')
+          button.style.viewTransitionName = ''
           switchMode()
+          releaseTransitions()
         }
       }
 
@@ -116,16 +98,70 @@
 </script>
 
 <style is:global>
-  .theme-transition::view-transition-old(root),
-  .theme-transition::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
+  /* 图标换位：同一个格子里叠放月亮和太阳。
+     可见态（入场）：稍晚开始，沿弹簧转入、去模糊；
+     隐藏态（退场）：立刻开始，快速转出、缩小、模糊。交接处不叠影。
+     过渡写在目标状态上，所以隐藏态的选择器优先级必须高于 .mode-icon */
+  .mode-icon {
+    grid-area: 1 / 1;
+    opacity: 1;
+    filter: blur(0);
+    rotate: 0deg;
+    scale: 1;
+    transition:
+      opacity 220ms ease 70ms,
+      filter 260ms ease 70ms,
+      rotate 560ms var(--spring-snappy) 40ms,
+      scale 560ms var(--spring-snappy) 40ms;
   }
 
-  .theme-transition::view-transition-new(root) {
-    z-index: 9999;
+  [data-mode='light'] .mode-icon-sun,
+  [data-mode='dark'] .mode-icon-moon {
+    opacity: 0;
+    filter: blur(3px);
+    rotate: 90deg;
+    scale: 0.5;
+    transition:
+      opacity 140ms ease,
+      filter 160ms ease,
+      rotate 220ms ease-in,
+      scale 220ms ease-in;
   }
-  .theme-transition::view-transition-old(root) {
-    z-index: 1;
+
+  .mode-icons {
+    transition: rotate 420ms var(--spring-snappy);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    button:hover > .mode-icons {
+      rotate: 12deg;
+    }
+  }
+
+  .theme-switching *:not(.mode-icon),
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition: none !important;
+  }
+
+  /* 整页只做不透明度交叉淡化：唯一能完全交给合成器的动画，不掉帧。
+     沿用浏览器默认的 plus-lighter 混合，新旧主题中间态不会发灰 */
+  .theme-transition::view-transition-old(root),
+  .theme-transition::view-transition-new(root) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-transition::view-transition-group(mode-toggle) {
+    animation: none;
+  }
+
+  /* 按钮层只显示实时的新状态，图标换位由上面的 CSS 过渡完成 */
+  .theme-transition::view-transition-old(mode-toggle) {
+    display: none;
+  }
+
+  .theme-transition::view-transition-new(mode-toggle) {
+    animation: none;
   }
 </style>

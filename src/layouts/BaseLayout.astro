@@ -11,6 +11,7 @@ import geistSans500 from '@fontsource/geist-sans/files/geist-sans-latin-500-norm
 import AmbientBackground from '@/components/AmbientBackground.astro'
 import Motion from '@/components/Motion.astro'
 import ModeManager from '@/components/mode/ModeManager.astro'
+import PageTransition from '@/components/PageTransition.astro'
 import CodeBlockIconsPlugin from '@/plugins/CodeBlockIconsPlugin.astro'
 import config from '@/theme.config'
 import { resolveImageUrl } from '@/util'
@@ -190,6 +191,7 @@ const structuredDataJson = JSON.stringify([
   <body class="relative min-h-screen">
     <AmbientBackground />
     <Motion />
+    <PageTransition />
     <slot />
     <CodeBlockIconsPlugin />
     <script

@@ -1,0 +1,66 @@
+<!--
+  页面切换：抓取新页面的同时，旧页面的内容区（[data-page-exit]）先带短模糊退场；
+  顶栏、背景不参与退场，新旧快照完全一致，根节点交叉淡化时它们纹丝不动。
+  新页面的内容由 Motion.astro 的入场动画接管，与交叉淡化同时开始。
+-->
+<script>
+  const EXIT_DURATION = 200
+
+  let exits: Animation[] = []
+
+  document.addEventListener('astro:before-preparation', (event) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const regions = document.querySelectorAll<HTMLElement>('[data-page-exit]')
+    if (!regions.length) return
+
+    // 快速连点时上一次退场还在（或已停在终点）：直接沿用，不让内容闪回
+    if (!exits.length) {
+      // 前进时内容向上离开，后退时向下离开，与浏览方向一致
+      const offset = event.direction === 'back' ? 6 : -6
+      exits = Array.from(regions, (region) =>
+        region.animate(
+          [
+            { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' },
+            {
+              opacity: 0,
+              transform: `translateY(${offset}px)`,
+              filter: 'blur(4px)'
+            }
+          ],
+          {
+            duration: EXIT_DURATION,
+            easing: 'cubic-bezier(0.4, 0, 1, 1)',
+            fill: 'forwards'
+          }
+        )
+      )
+    }
+
+    // 退场与网络请求并行，取较慢者；预取命中时最多只多等 200ms
+    const finished = Promise.allSettled(exits.map((a) => a.finished))
+    const originalLoader = event.loader
+    event.loader = async () => {
+      await Promise.all([originalLoader(), finished])
+    }
+  })
+
+  // 旧元素已随换页移除，清空引用
+  document.addEventListener('astro:after-swap', () => {
+    exits = []
+  })
+  // 请求失败时 Astro 会退回整页跳转；从往返缓存返回这一页时把内容还原
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return
+    exits.forEach((animation) => animation.cancel())
+    exits = []
+  })
+</script>
+
+<style is:global>
+  /* 根节点交叉淡化：比浏览器默认的 250ms 更短，入场动画才是主角 */
+  html[data-astro-transition]::view-transition-old(root),
+  html[data-astro-transition]::view-transition-new(root) {
+    animation-duration: 200ms;
+  }
+</style>

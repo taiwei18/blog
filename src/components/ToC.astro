@@ -71,13 +71,14 @@ const processedHeadings = filteredHeadings.map((h) => {
         aria-label="页面大纲目录"
         class={`toc-aside not-prose font-sans text-xs select-none ${className}`}
       >
-        <ul class="space-y-1">
+        <ul class="relative space-y-1">
+          <span class="toc-indicator" data-visible="false" aria-hidden="true" />
           {processedHeadings.map((h) => (
             <li class={h.depth === 3 ? 'pl-3' : ''}>
               <a
                 href={`#${h.slug}`}
                 data-toc-slug={h.slug}
-                class="toc-aside-link text-muted hover:bg-surface-hover hover:text-title line-clamp-2 block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed no-underline transition-[color,background-color,box-shadow] duration-200"
+                class="toc-aside-link text-muted hover:bg-surface-hover hover:text-title relative z-[1] line-clamp-2 block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed no-underline transition-[color,background-color,box-shadow] duration-200"
               >
                 {h.text}
               </a>
@@ -89,20 +90,31 @@ const processedHeadings = filteredHeadings.map((h) => {
 }
 
 <style is:global>
-  .toc-aside-link {
-    box-shadow: inset 0 0 0 transparent;
-  }
-
-  /* 左侧细条随激活项渐入，配合背景色过渡，滚动时高亮不再硬跳 */
   .toc-aside-link.is-active {
     color: var(--accent) !important;
     font-weight: 500 !important;
-    background-color: color-mix(
-      in oklab,
-      var(--accent) 10%,
-      transparent
-    ) !important;
+  }
+
+  /* 液态高亮条：与顶栏指示条同一套手法，上下两条边各走一条弹簧，
+     前沿（滚动方向那一侧）先到，后沿跟上，跨越多个标题时会被拉长 */
+  .toc-indicator {
+    position: absolute;
+    z-index: 0;
+    right: 0;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
     box-shadow: inset 2px 0 0 var(--accent);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      top var(--edge-top-duration, 0ms) var(--spring-snappy),
+      bottom var(--edge-bottom-duration, 0ms) var(--spring-snappy),
+      left 420ms var(--spring-snappy),
+      opacity 200ms ease;
+  }
+
+  .toc-indicator[data-visible='true'] {
+    opacity: 1;
   }
 </style>
 
@@ -121,6 +133,33 @@ const processedHeadings = filteredHeadings.map((h) => {
     const { signal } = controller
 
     let activeSlug = ''
+    const indicator = document.querySelector<HTMLElement>('.toc-indicator')
+    let edgeTop: number | null = null
+
+    const moveIndicator = (link: HTMLElement | undefined) => {
+      if (!indicator || !link) return
+      const list = indicator.parentElement
+      if (!list) return
+
+      const top = link.offsetTop
+      const bottom = list.clientHeight - top - link.offsetHeight
+      const appearing = edgeTop === null
+      const direction = appearing ? 0 : Math.sign(top - (edgeTop as number))
+
+      indicator.style.setProperty(
+        '--edge-top-duration',
+        appearing ? '0ms' : direction < 0 ? '420ms' : '640ms'
+      )
+      indicator.style.setProperty(
+        '--edge-bottom-duration',
+        appearing ? '0ms' : direction > 0 ? '420ms' : '640ms'
+      )
+      indicator.style.top = `${top}px`
+      indicator.style.bottom = `${bottom}px`
+      indicator.style.left = `${link.offsetLeft}px`
+      indicator.dataset.visible = 'true'
+      edgeTop = top
+    }
 
     const updateActiveHeading = () => {
       const scrollPosition = window.scrollY + 120 // Header height offset
@@ -141,12 +180,26 @@ const processedHeadings = filteredHeadings.map((h) => {
       asideLinks.forEach((link) => {
         if (link.dataset.tocSlug === slug) {
           link.classList.add('is-active')
+          moveIndicator(link)
           link.scrollIntoView({ block: 'nearest', inline: 'nearest' })
         } else {
           link.classList.remove('is-active')
         }
       })
     }
+
+    // 目录宽度变化（字体加载、窗口缩放）会改变换行和高度：直接贴合，不做动画
+    const list = indicator?.parentElement
+    const resizeObserver = new ResizeObserver(() => {
+      edgeTop = null
+      moveIndicator(
+        Array.from(asideLinks).find(
+          (link) => link.dataset.tocSlug === activeSlug
+        )
+      )
+    })
+    if (list) resizeObserver.observe(list)
+    signal.addEventListener('abort', () => resizeObserver.disconnect())
 
     let frame = 0
     const scheduleUpdate = () => {

@@ -34,13 +34,17 @@ const {
 
     {
       Astro.slots.has('aside') && (
-        <aside class="scrollbar-hide fixed top-28 left-8 z-20 hidden h-[calc(100vh-8rem)] w-60 overflow-y-auto overscroll-y-none pr-4 2xl:block">
+        <aside
+          data-page-exit
+          class="scrollbar-hide fixed top-28 left-8 z-20 hidden h-[calc(100vh-8rem)] w-60 overflow-y-auto overscroll-y-none pr-4 2xl:block"
+        >
           <slot name="aside" />
         </aside>
       )
     }
 
     <div
+      data-page-exit
       class="page-content mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 pt-24 sm:px-6 sm:pt-28 md:px-0"
     >
       <slot name="top" />
