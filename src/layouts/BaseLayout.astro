@@ -12,6 +12,7 @@ import AmbientBackground from '@/components/AmbientBackground.astro'
 import Motion from '@/components/Motion.astro'
 import ModeManager from '@/components/mode/ModeManager.astro'
 import PageTransition from '@/components/PageTransition.astro'
+import Xiaoying from '@/components/xiaoying/Xiaoying.astro'
 import CodeBlockIconsPlugin from '@/plugins/CodeBlockIconsPlugin.astro'
 import config from '@/theme.config'
 import { resolveImageUrl } from '@/util'
@@ -193,6 +194,7 @@ const structuredDataJson = JSON.stringify([
     <Motion />
     <PageTransition />
     <slot />
+    <Xiaoying />
     <CodeBlockIconsPlugin />
     <script
       is:inline

@@ -10,6 +10,7 @@ export default defineThemeConfig({
     { label: '博客', href: '/posts/' },
     { label: '标签', href: '/tags/' },
     { label: '时间轴', href: '/timeline/' },
+    { label: '小鹰', href: '/nest/' },
     { label: '关于', href: '/about/' },
     {
       label: '其它页面',

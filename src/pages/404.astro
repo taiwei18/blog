@@ -12,7 +12,11 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
 ---
 
 <PageLayout {frontmatter}>
-  <div class="not-prose my-8 select-text sm:my-16" data-pagefind-ignore>
+  <div
+    class="not-prose my-8 select-text sm:my-16"
+    data-pagefind-ignore
+    data-xiaoying-404
+  >
     <!-- 先锋杂志封面式布局网格：双栏非对称排印 -->
     <div
       class="relative border-t-2 border-b-2 border-[var(--text-title)] py-12 sm:py-20"
@@ -63,6 +67,13 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
             </p>
             <p class="text-muted mb-8 font-sans text-sm leading-relaxed">
               你访问的路径在博客路由拓扑中处于未定义状态。它也许曾作为草稿存在，或在某次架构重构中归于虚无。
+            </p>
+            <p class="text-muted -mt-5 mb-8 font-sans text-sm leading-relaxed">
+              也可能是被
+              <a href="/nest/" class="text-title underline underline-offset-4"
+                >小鹰</a
+              >
+              撕成纸条，塞进尾羽里了。看看右下角，它尾巴上那条是不是。
             </p>
           </div>
 

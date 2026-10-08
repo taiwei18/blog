@@ -1,0 +1,237 @@
+---
+import BirdSvg from './BirdSvg.astro'
+---
+
+<!-- 小鹰：全站常驻的牡丹鹦鹉。transition:persist 让它在页面切换时保持存活与状态 -->
+<div
+  id="xiaoying"
+  class="xiaoying"
+  transition:persist="xiaoying"
+  data-pagefind-ignore
+  data-mood="idle"
+>
+  <p class="xy-bubble" role="status" aria-live="polite"></p>
+  <button
+    type="button"
+    class="xy-hit"
+    aria-label="小鹰，一只白色牡丹鹦鹉。点它会被咬"
+    title="小鹰（会咬人）"
+  >
+    <BirdSvg class="xy-figure" />
+  </button>
+  <!-- 食盆：拖出一颗瓜子喂它，或直接点击让它过来吃 -->
+  <button
+    type="button"
+    class="xy-dish"
+    aria-label="投喂瓜子：拖一颗给小鹰，或直接点击"
+    title="拖一颗瓜子喂小鹰"
+  >
+    <svg viewBox="0 0 32 18" aria-hidden="true">
+      <g class="xy-dish-seeds">
+        <path d="M9 7.6 C9.4 5.2 12 4.4 13.2 6.2 C12 7.6 10.4 8.2 9 7.6 Z"
+        ></path>
+        <path d="M14.4 7.4 C15.6 4.6 18.6 4.6 19 7 C17.6 8 16 8.2 14.4 7.4 Z"
+        ></path>
+        <path
+          d="M19.6 7.8 C21 5.8 23.6 6.2 23.6 8 C22.2 8.6 20.8 8.6 19.6 7.8 Z"
+        ></path>
+      </g>
+      <path
+        class="xy-dish-bowl"
+        d="M2.5 8 H29.5 C29.5 13.2 23.6 16.6 16 16.6 C8.4 16.6 2.5 13.2 2.5 8 Z"
+      ></path>
+      <path class="xy-dish-rim" d="M2.5 8 H29.5"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+  import { mountXiaoying } from './controller'
+
+  const root = document.getElementById('xiaoying')
+  if (root) {
+    const start = () => mountXiaoying(root)
+    if (typeof window.requestIdleCallback === 'function')
+      window.requestIdleCallback(start, { timeout: 1500 })
+    else setTimeout(start, 300)
+  }
+</script>
+
+<style>
+  .xiaoying {
+    position: fixed;
+    right: 4rem;
+    bottom: 0.5rem;
+    z-index: 40;
+    width: 4rem;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .xiaoying[data-ready] {
+    opacity: 1;
+  }
+
+  @media (width >= 640px) {
+    .xiaoying {
+      right: 5.25rem;
+      bottom: 1.6rem;
+      width: 4.75rem;
+    }
+  }
+
+  @media print {
+    .xiaoying {
+      display: none;
+    }
+  }
+
+  .xy-hit {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .xy-dish {
+    position: absolute;
+    bottom: 12%;
+    left: -2.1rem;
+    display: block;
+    width: 2rem;
+    padding: 0.25rem 0.15rem 0.1rem;
+    border: 0;
+    background: none;
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .xy-dish:active {
+    cursor: grabbing;
+  }
+
+  .xy-hit:focus-visible,
+  .xy-dish:focus-visible {
+    outline: 1px solid var(--text-title);
+    outline-offset: 2px;
+  }
+
+  .xy-dish svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .xy-dish-bowl {
+    fill: var(--card-surface);
+    stroke: var(--border-strong);
+    stroke-width: 1;
+  }
+
+  .xy-dish-rim {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+
+  .xy-dish-seeds path {
+    fill: #3f3b38;
+    stroke: #f2efe8;
+    stroke-width: 0.5;
+  }
+
+  .xiaoying[data-full] .xy-dish-seeds {
+    opacity: 0;
+  }
+
+  .xy-bubble {
+    position: absolute;
+    right: 0.25rem;
+    bottom: calc(100% - 0.25rem);
+    margin: 0;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 2px;
+    background: var(--card-surface);
+    box-shadow: 0 8px 24px -16px rgb(0 0 0 / 0.35);
+    color: var(--text-title);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .xy-bubble::after {
+    content: '';
+    position: absolute;
+    right: 1.4rem;
+    bottom: -4px;
+    width: 7px;
+    height: 7px;
+    border-right: 1px solid var(--border-medium);
+    border-bottom: 1px solid var(--border-medium);
+    background: var(--card-surface);
+    transform: rotate(45deg);
+  }
+
+  /* 以下元素由 controller.ts 动态挂到 <body> 上 */
+  :global(.xy-fx) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 45;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  :global(.xy-seed) {
+    width: 14px;
+    height: 9px;
+  }
+
+  :global(.xy-z) {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-style: italic;
+  }
+
+  :global(.xy-strip) {
+    width: 8.5rem;
+    padding: 0.4rem 0.6rem 0.55rem;
+    overflow: hidden;
+    background: #f5f1e6;
+    color: #57534e;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-shadow: 0 6px 18px -10px rgb(0 0 0 / 0.4);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 78%,
+      94% 100%,
+      86% 82%,
+      76% 100%,
+      66% 84%,
+      55% 100%,
+      44% 82%,
+      33% 100%,
+      22% 84%,
+      12% 100%,
+      0 86%
+    );
+  }
+</style>

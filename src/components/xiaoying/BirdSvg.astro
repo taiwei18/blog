@@ -1,0 +1,335 @@
+---
+// 小鹰：白色牡丹鹦鹉的手绘矢量形象，按照片还原粉嘴、白眼圈、淡青翅尖与尾羽、橙色脚环。
+// 各部位分组并带 class，供 controller.ts 用 GSAP 单独驱动（头、眼、翅、尾、下喙）。
+// 头与身体共用一条外轮廓：头部填充不描边，只在外侧画一段弧线，转头时脖子不会出现接缝。
+export interface Props {
+  class?: string
+  perch?: boolean
+}
+
+const { class: className = '', perch = true } = Astro.props
+
+// 同一页面可能同时出现多只（常驻 + 页面插图），渐变 id 需各自独立
+const uid = `xy${Math.random().toString(36).slice(2, 8)}`
+const id = (name: string) => `${uid}-${name}`
+const url = (name: string) => `url(#${id(name)})`
+---
+
+<svg
+  viewBox="0 0 80 80"
+  class:list={['xy-svg', className]}
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <radialGradient id={id('body')} cx="0.38" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"></stop>
+      <stop offset="0.55" stop-color="#f7f5f0"></stop>
+      <stop offset="1" stop-color="#e2e6e5"></stop>
+    </radialGradient>
+    <radialGradient id={id('head')} cx="0.4" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#ffffff"></stop>
+      <stop offset="0.7" stop-color="#f8f6f1"></stop>
+      <stop offset="1" stop-color="#ebebe7"></stop>
+    </radialGradient>
+    <linearGradient id={id('wing')} x1="0.2" y1="0" x2="0.75" y2="1">
+      <stop offset="0" stop-color="#fbfbf8"></stop>
+      <stop offset="0.55" stop-color="#ebf0ee"></stop>
+      <stop offset="1" stop-color="#cddde1"></stop>
+    </linearGradient>
+    <linearGradient id={id('tail')} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3ecee"></stop>
+      <stop offset="1" stop-color="#b4c8d0"></stop>
+    </linearGradient>
+    <linearGradient id={id('beak')} x1="0.2" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#fbd0cf"></stop>
+      <stop offset="1" stop-color="#e79da1"></stop>
+    </linearGradient>
+    <radialGradient id={id('blush')} cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f8cdbd" stop-opacity="0.9"></stop>
+      <stop offset="1" stop-color="#f8cdbd" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id={id('pupil')} cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#2f2a2a"></stop>
+      <stop offset="1" stop-color="#0a0a0c"></stop>
+    </radialGradient>
+  </defs>
+
+  <g
+    class="xy-ink"
+    stroke-width="0.85"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    {
+      perch && (
+        <>
+          <rect
+            class="xy-perch"
+            x="2"
+            y="66.8"
+            width="76"
+            height="2.2"
+            rx="1.1"
+            stroke="none"
+          />
+          <ellipse
+            class="xy-shadow"
+            cx="43"
+            cy="66.9"
+            rx="11"
+            ry="1"
+            stroke="none"
+          />
+        </>
+      )
+    }
+
+    <g class="xy-bird">
+      <g class="xy-tail">
+        <path
+          d="M47.5 57.5 L60.6 72.2 C61.6 73.3 60.8 74.9 59.3 74.4 L45.2 61.8 Z"
+          fill={url('tail')}></path>
+        <path class="xy-c-shaft" d="M48.8 60.4 L59.6 72.6" stroke-width="0.5"
+        ></path>
+        <!-- 撕下来塞进尾羽的纸条，读完文章后出现 -->
+        <g class="xy-paper" opacity="0">
+          <path
+            class="xy-c-paper"
+            d="M49 57.5 L66.5 52 L67.6 55.6 L65 56.7 L68.2 59.3 L51.4 64.6 Z"
+            stroke-width="0.7"></path>
+          <path
+            class="xy-c-paper-line"
+            d="M52.6 59.2 L63.6 55.8 M53.6 61.6 L62.8 58.8"
+            stroke-width="0.5"></path>
+        </g>
+      </g>
+
+      <g class="xy-feet">
+        <path
+          class="xy-c-foot"
+          d="M37.6 62.5 L37.2 66.2 M45.6 62.4 L45.6 66.2"
+          stroke-width="1.9"></path>
+        <!-- 对趾足：前后各两趾握住栖木 -->
+        <path
+          class="xy-c-foot"
+          d="M37.2 66.2 C35.6 66.1 34.3 66.7 33.9 67.9 M37.2 66.2 C38.7 66.1 39.9 66.7 40.3 67.9 M45.6 66.2 C44 66.1 42.7 66.7 42.3 67.9 M45.6 66.2 C47.1 66.1 48.3 66.7 48.7 67.9"
+          stroke-width="1.5"></path>
+        <path
+          class="xy-c-claw"
+          d="M33.9 67.9 l-0.2 0.7 M40.3 67.9 l0.2 0.7 M42.3 67.9 l-0.2 0.7 M48.7 67.9 l0.2 0.7"
+          stroke-width="0.7"></path>
+        <rect
+          class="xy-c-band"
+          x="44"
+          y="62.3"
+          width="3.3"
+          height="2.3"
+          rx="0.7"
+          stroke-width="0.5"></rect>
+        <path class="xy-c-band-shine" d="M44.6 62.9 h2" stroke-width="0.45"
+        ></path>
+      </g>
+
+      <g class="xy-body">
+        <path
+          d="M27 34 C24.6 41 25 51.5 29.6 58.6 C32.8 63.4 38 65.6 43.2 65.1 C49.2 64.5 54 60.2 56 54 C58 47 57.2 38.4 52.4 31.8 C50 28.4 46.6 26.2 43 25.6 L36 28 Z"
+          fill={url('body')}></path>
+        <!-- 胸口细碎的羽片纹理 -->
+        <path
+          class="xy-c-scale"
+          d="M29.5 44 q1.4 1.1 2.8 0 q1.4 1.1 2.8 0 M31 48.5 q1.4 1.1 2.8 0 q1.4 1.1 2.8 0 M30 53 q1.4 1.1 2.8 0 q1.4 1.1 2.8 0 q1.4 1.1 2.8 0 M32.5 57.5 q1.4 1.1 2.8 0 q1.4 1.1 2.8 0"
+          stroke-width="0.45"></path>
+      </g>
+
+      <g class="xy-wing">
+        <path
+          d="M41 33 C47 31 54 35 56.5 43 C58.5 50 58 57 55.6 63.2 L52.6 64.6 C47 59.2 42 51 39.6 43 C38.7 39 39 35 41 33 Z"
+          fill={url('wing')}></path>
+        <!-- 覆羽两排，飞羽三根 -->
+        <path
+          class="xy-c-covert"
+          d="M41.2 37.6 q1.6 1.6 3.4 0.8 q1.7 1.6 3.6 0.6 q1.6 1.4 3.2 0.2 M41.6 42.4 q1.8 1.8 3.8 0.9 q1.8 1.7 3.8 0.6 q1.7 1.5 3.6 0.3"
+          stroke-width="0.55"></path>
+        <path
+          class="xy-c-covert"
+          d="M44.6 46.8 C47.6 45.6 51.8 45.2 56.6 46"
+          stroke-width="0.55"></path>
+        <path
+          class="xy-c-quill"
+          d="M45.4 47.5 C48.4 52.6 50.6 57.8 52.6 64.6 M48.6 46.6 C51.6 51.4 53.6 56.6 54.6 63.6 M51.8 45.6 C54.2 49.8 55.8 54.6 56.4 60"
+          stroke-width="0.6"></path>
+      </g>
+
+      <g class="xy-head">
+        <circle cx="34" cy="25" r="12.5" fill={url('head')} stroke="none"
+        ></circle>
+        <path d="M26 34.6 A12.5 12.5 0 1 1 46.3 27.2"></path>
+        <ellipse
+          cx="27"
+          cy="31"
+          rx="4.6"
+          ry="3.2"
+          fill={url('blush')}
+          stroke="none"></ellipse>
+        <g class="xy-beak">
+          <path
+            class="xy-beak-lower xy-c-beak-lower"
+            d="M20.6 30.6 C20.4 34.3 22.8 36.1 25.9 34.8 L25.4 30.2 Z"></path>
+          <path
+            d="M25.9 21.8 C20.3 21.4 16.7 25.6 17.5 31.4 C17.8 33.4 19.6 33.7 20.1 32 C20.6 29.8 22.6 29 26.1 30 Z"
+            fill={url('beak')}></path>
+          <path
+            class="xy-c-beak-shine"
+            d="M24.4 22.6 C21.2 22.8 19 25 18.4 28.2"
+            stroke-width="0.6"></path>
+          <path
+            class="xy-c-cere"
+            d="M24.7 22.1 q1.4 -0.7 2.8 0.1"
+            stroke-width="0.9"></path>
+          <circle
+            class="xy-c-nostril"
+            cx="25.4"
+            cy="23.3"
+            r="0.35"
+            stroke="none"></circle>
+        </g>
+        <g class="xy-eye">
+          <circle
+            class="xy-c-ring"
+            cx="29.5"
+            cy="24.5"
+            r="3.9"
+            stroke-width="0.6"></circle>
+          <g class="xy-pupil">
+            <circle
+              class="xy-c-iris"
+              cx="29.3"
+              cy="24.6"
+              r="2.65"
+              fill={url('pupil')}
+              stroke-width="0.35"></circle>
+            <circle class="xy-c-shine" cx="28.3" cy="23.5" r="0.9" stroke="none"
+            ></circle>
+            <circle
+              class="xy-c-shine"
+              cx="30.3"
+              cy="25.8"
+              r="0.38"
+              stroke="none"
+              opacity="0.75"></circle>
+          </g>
+        </g>
+        <!-- 睡觉时的闭眼弧线 -->
+        <path
+          class="xy-lid"
+          d="M26 24.6 C27.6 26.6 31.2 26.6 33 24.6"
+          stroke-width="1.1"
+          opacity="0"></path>
+      </g>
+    </g>
+  </g>
+</svg>
+
+<style>
+  .xy-svg {
+    --xy-line: #8b8884;
+    --xy-perch: #e4e3df;
+    --xy-shadow: rgb(0 0 0 / 0.08);
+
+    display: block;
+    overflow: visible;
+  }
+
+  :global([data-mode='dark']) .xy-svg {
+    --xy-line: #6a6864;
+    --xy-perch: #26272a;
+    --xy-shadow: rgb(0 0 0 / 0.45);
+  }
+
+  .xy-ink {
+    stroke: var(--xy-line);
+  }
+
+  .xy-perch {
+    fill: var(--xy-perch);
+  }
+
+  .xy-shadow {
+    fill: var(--xy-shadow);
+  }
+
+  .xy-c-shaft {
+    stroke: #9fb5be;
+  }
+
+  .xy-c-foot {
+    stroke: #e3aaa7;
+  }
+
+  .xy-c-claw {
+    stroke: #a87e7b;
+  }
+
+  .xy-c-band {
+    fill: #f28a22;
+    stroke: #c46a14;
+  }
+
+  .xy-c-band-shine {
+    stroke: #ffd29c;
+  }
+
+  .xy-c-scale {
+    stroke: #e4dfd5;
+    opacity: 0.6;
+  }
+
+  .xy-c-covert {
+    stroke: #d3dedf;
+  }
+
+  .xy-c-quill {
+    stroke: #bfd0d4;
+  }
+
+  .xy-c-beak-lower {
+    fill: #e2959a;
+  }
+
+  .xy-c-beak-shine {
+    stroke: #fff;
+    opacity: 0.7;
+  }
+
+  .xy-c-cere {
+    stroke: #e8c9c0;
+  }
+
+  .xy-c-nostril {
+    fill: #c98c8c;
+  }
+
+  .xy-c-ring {
+    fill: #fff;
+    stroke: #e3dfd6;
+  }
+
+  .xy-c-iris {
+    stroke: #4a3a35;
+  }
+
+  .xy-c-shine {
+    fill: #fff;
+  }
+
+  .xy-c-paper {
+    fill: #f3ecd9;
+    stroke: #8f8672;
+  }
+
+  .xy-c-paper-line {
+    stroke: #a89f8a;
+  }
+</style>

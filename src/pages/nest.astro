@@ -1,0 +1,508 @@
+---
+import cage from '@/assets/xiaoying/cage.jpg'
+import keyboard from '@/assets/xiaoying/keyboard.jpg'
+import palm from '@/assets/xiaoying/palm.jpg'
+import rgb from '@/assets/xiaoying/rgb.jpg'
+import shoulder from '@/assets/xiaoying/shoulder.jpg'
+import supervise from '@/assets/xiaoying/supervise.jpg'
+import BirdSvg from '@/components/xiaoying/BirdSvg.astro'
+import PageLayout, {
+  type Props as PageLayoutProps
+} from '@/layouts/PageLayout.astro'
+import { Image } from 'astro:assets'
+
+const frontmatter: PageLayoutProps['frontmatter'] = {
+  title: '小鹰',
+  description:
+    '小鹰，一只白色牡丹鹦鹉，本站常驻咬人担当。照片、档案与它在网站里的行为图鉴。',
+  activeHeaderLink: '小鹰'
+}
+
+const photos = [
+  { src: cage, caption: '笼顶站岗', alt: '小鹰站在黑色笼顶上，正面看着镜头' },
+  {
+    src: keyboard,
+    caption: '键盘值班',
+    alt: '小鹰站在透明键帽的机械键盘上，被紫色灯光照亮'
+  },
+  {
+    src: palm,
+    caption: '掌心体检',
+    alt: '小鹰侧身站在手上，翅尖和尾羽泛着淡青色'
+  },
+  { src: rgb, caption: 'RGB 夜班', alt: '紫色键盘灯光下小鹰的近照，歪着头' },
+  {
+    src: supervise,
+    caption: '监督写代码',
+    alt: '小鹰站在键盘边，盯着正在打字的手指'
+  },
+  {
+    src: shoulder,
+    caption: '肩头巡视',
+    alt: '小鹰站在深色衣服的肩膀上，低头看镜头，左脚戴着橙色脚环'
+  }
+]
+
+const behaviors = [
+  { trigger: '光标靠近', action: '转头盯着你，炸毛警戒' },
+  { trigger: '在它身上停留', action: '不打招呼，直接咬一口' },
+  { trigger: '点它', action: '啄。每第五下，飞过来咬耳朵' },
+  { trigger: '在头上慢慢划', action: '算挠头：眯眼、低头蹭你、哼小曲' },
+  { trigger: '在头上乱晃', action: '嫌你手重，咬。挠到一半停手也会咬' },
+  { trigger: '手机上长按它', action: '同样算挠头，松手结束' },
+  {
+    trigger: '从食盆拖瓜子',
+    action: '扔近了凑过来嗑，扔远了飞过去接。一天最多 6 颗'
+  },
+  { trigger: '45 秒没动静', action: '把头一缩，开始打盹' },
+  { trigger: '切到暗色模式', action: '当作盖上笼布，睡觉。吵醒有起床气' },
+  { trigger: '读完一篇文章', action: '把这页撕一条，塞进尾羽' },
+  { trigger: '走进 404', action: '尾巴上挂着纸条，坚称不是它撕的' }
+]
+---
+
+<PageLayout {frontmatter}>
+  <div class="not-prose nest flex flex-col gap-14 sm:gap-20">
+    <!-- 头部 -->
+    <section class="flex flex-col gap-8 pt-2">
+      <div
+        class="text-muted flex items-center gap-4 font-mono text-[11px]"
+        data-entrance
+      >
+        <span class="text-title">sys://companion/xiaoying</span>
+        <span class="bg-border-medium h-px w-10" aria-hidden="true"></span>
+        <span class="tracking-[0.16em]">牡丹鹦鹉 · 白</span>
+      </div>
+
+      <div class="grid grid-cols-[1fr_auto] items-end gap-6">
+        <h1 class="nest-title">
+          <span class="block overflow-hidden">
+            <span data-title-line class="block"
+              >小鹰<span class="nest-period">。</span></span
+            >
+          </span>
+        </h1>
+        <div class="nest-hero-bird" data-entrance data-entrance-order="1">
+          <BirdSvg perch={false} />
+        </div>
+      </div>
+
+      <p
+        class="text-body max-w-lg text-sm leading-loose tracking-[0.035em] sm:text-base"
+        data-entrance
+        data-entrance-order="1"
+      >
+        一只白色牡丹鹦鹉，粉嘴，黑豆眼，左脚戴着橙色脚环。<br />
+        爱站键盘，爱咬人，最爱咬耳朵。它现在也住在这个网站的右下角。
+      </p>
+
+      <dl
+        class="border-border-subtle grid grid-cols-3 border-y font-mono text-xs"
+        data-entrance
+        data-entrance-order="2"
+      >
+        <div
+          class="border-border-subtle flex flex-col gap-1.5 border-r py-4 pr-3"
+        >
+          <dt class="text-faint text-[10px] tracking-wider uppercase">
+            Species
+          </dt>
+          <dd class="text-title">Agapornis</dd>
+        </div>
+        <div
+          class="border-border-subtle flex flex-col gap-1.5 border-r px-3 py-4 sm:px-5"
+        >
+          <dt class="text-faint text-[10px] tracking-wider uppercase">
+            Status
+          </dt>
+          <dd class="text-title" data-nest-status>醒着</dd>
+        </div>
+        <div class="flex flex-col gap-1.5 py-4 pl-3 sm:pl-5">
+          <dt class="text-faint text-[10px] tracking-wider uppercase">
+            你被咬了
+          </dt>
+          <dd class="text-title">
+            <span data-nest-bites class="tabular-nums">0</span> 口
+          </dd>
+        </div>
+      </dl>
+
+      <!-- 全站共享计数：接口可用时才显示 -->
+      <div
+        data-nest-global
+        hidden
+        class="border-border-subtle -mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-2 border-b pb-4 font-mono text-xs"
+      >
+        <span class="text-faint text-[10px] tracking-wider uppercase"
+          >全站 · 今天</span
+        >
+        <span class="text-muted flex flex-wrap gap-x-5 gap-y-1">
+          <span
+            >咬了 <b class="nest-count text-title" data-global="today.bites"
+              >0</b
+            > 口</span
+          >
+          <span
+            >喂了 <b class="nest-count text-title" data-global="today.feeds"
+              >0</b
+            > 颗</span
+          >
+          <span
+            >挠了 <b class="nest-count text-title" data-global="today.pets">0</b
+            > 次</span
+          >
+        </span>
+        <span class="text-faint text-[10px] tracking-wider uppercase"
+          >全站 · 累计</span
+        >
+        <span class="text-muted flex flex-wrap gap-x-5 gap-y-1">
+          <span
+            >咬了 <b class="nest-count text-title" data-global="total.bites"
+              >0</b
+            > 口</span
+          >
+          <span
+            >喂了 <b class="nest-count text-title" data-global="total.feeds"
+              >0</b
+            > 颗</span
+          >
+          <span
+            >挠了 <b class="nest-count text-title" data-global="total.pets">0</b
+            > 次</span
+          >
+        </span>
+      </div>
+    </section>
+
+    <!-- 相册 -->
+    <section class="flex flex-col gap-4">
+      <div
+        class="border-border-subtle flex items-center justify-between border-b pb-3"
+      >
+        <h2 class="text-title font-sans text-base font-semibold tracking-tight">
+          相册
+        </h2>
+        <span class="text-muted font-mono text-xs tracking-wider uppercase"
+          >Field Photos · {photos.length}</span
+        >
+      </div>
+
+      <div class="columns-2 gap-3 sm:columns-3 sm:gap-4">
+        {
+          photos.map((photo, index) => (
+            <figure
+              data-reveal
+              class="nest-photo group mb-3 break-inside-avoid sm:mb-4"
+            >
+              <div class="border-border-subtle bg-surface overflow-hidden border">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  widths={[320, 480, 720]}
+                  sizes="(min-width: 640px) 14rem, 46vw"
+                  data-action="zoom"
+                  class="h-auto w-full cursor-zoom-in transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                />
+              </div>
+              <figcaption class="text-muted mt-2 flex items-baseline gap-2 font-mono text-[11px]">
+                <span class="text-faint">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="group-hover:text-title transition-colors">
+                  {photo.caption}
+                </span>
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- 档案 -->
+    <section class="flex flex-col gap-4">
+      <div
+        class="border-border-subtle flex items-center justify-between border-b pb-3"
+      >
+        <h2 class="text-title font-sans text-base font-semibold tracking-tight">
+          档案
+        </h2>
+        <span class="text-muted font-mono text-xs tracking-wider uppercase"
+          >Dossier</span
+        >
+      </div>
+
+      <div data-reveal class="terminal-window flex flex-col gap-4 p-5 sm:p-8">
+        <div
+          class="border-border-subtle text-muted flex items-center gap-2 border-b pb-4 font-mono text-xs"
+        >
+          <span class="text-accent font-semibold">sys://companion</span>
+          <span class="text-faint">/</span>
+          <span>xiaoying.json</span>
+        </div>
+        <div class="overflow-x-auto">
+          <pre
+            class="text-muted font-mono text-xs leading-relaxed sm:text-sm"><code><span class="text-accent">&#123;</span>
+  <span class="text-title">"name"</span>: <span class="text-accent">"小鹰"</span>,
+  <span class="text-title">"species"</span>: <span class="text-accent">"牡丹鹦鹉 · Agapornis"</span>,
+  <span class="text-title">"plumage"</span>: <span class="text-accent">"白羽，翅尖与尾羽泛一点淡青"</span>,
+  <span class="text-title">"beak"</span>: <span class="text-accent">"粉色"</span>,
+  <span class="text-title">"eyes"</span>: <span class="text-accent">"黑豆眼，白眼圈"</span>,
+  <span class="text-title">"band"</span>: <span class="text-accent">"橙色脚环"</span>,
+  <span class="text-title">"temperament"</span>: [<span class="text-accent">"爱咬人"</span>, <span class="text-accent">"最爱咬耳朵"</span>],
+  <span class="text-title">"perches"</span>: [<span class="text-accent">"肩膀"</span>, <span class="text-accent">"机械键盘"</span>, <span class="text-accent">"笼顶"</span>],
+  <span class="text-title">"role"</span>: <span class="text-accent">"本站常驻咬人担当"</span>
+<span class="text-accent">&#125;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 行为图鉴 -->
+    <section class="flex flex-col gap-4">
+      <div
+        class="border-border-subtle flex items-center justify-between border-b pb-3"
+      >
+        <h2 class="text-title font-sans text-base font-semibold tracking-tight">
+          行为图鉴
+        </h2>
+        <span class="text-muted font-mono text-xs tracking-wider uppercase"
+          >Field Guide</span
+        >
+      </div>
+      <p class="text-muted text-sm leading-relaxed">
+        右下角的小鹰按照它的真实脾气写成。下面这些都可以试试。
+      </p>
+      <ol class="flex flex-col">
+        {
+          behaviors.map((item, index) => (
+            <li
+              data-reveal
+              class="border-border-subtle grid grid-cols-[2rem_7.5rem_1fr] items-baseline gap-2 border-b py-4 text-sm sm:grid-cols-[2.5rem_10rem_1fr] sm:gap-4"
+            >
+              <span class="text-faint font-mono text-xs">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span class="text-title font-medium">{item.trigger}</span>
+              <span class="text-muted">{item.action}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <!-- 咬痕记录 -->
+    <section class="mb-4 flex flex-col gap-4">
+      <div
+        class="border-border-subtle flex items-center justify-between border-b pb-3"
+      >
+        <h2 class="text-title font-sans text-base font-semibold tracking-tight">
+          咬痕记录
+        </h2>
+        <span class="text-muted font-mono text-xs tracking-wider uppercase"
+          >Bite Log</span
+        >
+      </div>
+
+      <div data-reveal class="terminal-window flex flex-col gap-4 p-5 sm:p-6">
+        <ul
+          data-nest-log
+          class="text-muted flex min-h-24 flex-col gap-1.5 font-mono text-xs leading-relaxed"
+        >
+        </ul>
+        <div
+          class="border-border-subtle flex flex-wrap items-center gap-2 border-t pt-4 font-mono text-xs"
+        >
+          <button
+            type="button"
+            data-nest-cage
+            class="border-border-medium text-title hover:border-title border px-3 py-1.5 transition-colors"
+          >
+            关回笼子
+          </button>
+          <button
+            type="button"
+            data-nest-clear
+            class="text-muted hover:text-title border border-transparent px-3 py-1.5 transition-colors"
+          >
+            清空记录
+          </button>
+          <span class="text-faint ml-auto">只记在你自己的浏览器里</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</PageLayout>
+
+<script>
+  import {
+    BITE_EVENT,
+    CAGE_EVENT,
+    clearBites,
+    getBiteLog,
+    getBites,
+    isCaged,
+    setCaged,
+    type BiteKind
+  } from '@/components/xiaoying/store'
+  import {
+    STATS_EVENT,
+    getStats,
+    loadStats,
+    type Stats
+  } from '@/components/xiaoying/stats'
+
+  const KIND_LABEL: Record<BiteKind, string> = {
+    peck: '啄了一口',
+    ear: '咬了耳朵',
+    grumpy: '被吵醒，咬'
+  }
+
+  const time = (at: number) =>
+    new Date(at).toLocaleTimeString('zh-CN', { hour12: false })
+
+  let cleanup = () => {}
+
+  const setupNest = () => {
+    cleanup()
+    const bitesEl = document.querySelector<HTMLElement>('[data-nest-bites]')
+    const statusEl = document.querySelector<HTMLElement>('[data-nest-status]')
+    const logEl = document.querySelector<HTMLElement>('[data-nest-log]')
+    const cageBtn =
+      document.querySelector<HTMLButtonElement>('[data-nest-cage]')
+    const clearBtn =
+      document.querySelector<HTMLButtonElement>('[data-nest-clear]')
+    if (!bitesEl || !statusEl || !logEl || !cageBtn || !clearBtn) return
+
+    const controller = new AbortController()
+    const { signal } = controller
+    const bird = document.getElementById('xiaoying')
+
+    const renderBites = () => {
+      bitesEl.textContent = String(getBites())
+      const log = getBiteLog()
+      logEl.replaceChildren(
+        ...(log.length
+          ? log.map((record) => {
+              const li = document.createElement('li')
+              li.innerHTML = `<span class="text-faint">[${time(record.at)}]</span> <span class="text-title">${KIND_LABEL[record.kind] ?? '咬'}</span> <span class="text-faint">@ ${record.path}</span>`
+              return li
+            })
+          : [
+              Object.assign(document.createElement('li'), {
+                className: 'text-faint',
+                textContent: '$ 还没被咬过。去右下角摸它一下。'
+              })
+            ])
+      )
+    }
+
+    const renderStatus = () => {
+      const caged = isCaged()
+      cageBtn.textContent = caged ? '放它出来' : '关回笼子'
+      statusEl.textContent = caged
+        ? '在笼子里'
+        : bird?.dataset.mood === 'sleep'
+          ? '打盹中'
+          : '醒着'
+    }
+
+    renderBites()
+    renderStatus()
+
+    // 全站计数：每 15 秒刷新，数字变大时跳一下
+    const globalEl = document.querySelector<HTMLElement>('[data-nest-global]')
+    const renderGlobal = (stats: Stats | null) => {
+      if (!globalEl || !stats) return
+      globalEl.hidden = false
+      globalEl
+        .querySelectorAll<HTMLElement>('[data-global]')
+        .forEach((cell) => {
+          const [scope, kind] = cell.dataset.global!.split('.') as [
+            'today' | 'total',
+            keyof Stats['today']
+          ]
+          const next = stats[scope][kind]
+          const previous = Number(cell.dataset.value ?? next)
+          cell.dataset.value = String(next)
+          cell.textContent = next.toLocaleString('zh-CN')
+          if (next > previous) {
+            cell.classList.remove('bump')
+            void cell.offsetWidth
+            cell.classList.add('bump')
+          }
+        })
+    }
+    renderGlobal(getStats())
+    void loadStats(true).then(renderGlobal)
+    window.addEventListener(
+      STATS_EVENT,
+      (event) => renderGlobal((event as CustomEvent<Stats | null>).detail),
+      { signal }
+    )
+    const poll = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadStats(true)
+    }, 15_000)
+    signal.addEventListener('abort', () => window.clearInterval(poll))
+
+    window.addEventListener(BITE_EVENT, renderBites, { signal })
+    window.addEventListener(CAGE_EVENT, renderStatus, { signal })
+    cageBtn.addEventListener('click', () => setCaged(!isCaged()), { signal })
+    clearBtn.addEventListener('click', clearBites, { signal })
+
+    if (bird) {
+      const observer = new MutationObserver(renderStatus)
+      observer.observe(bird, {
+        attributes: true,
+        attributeFilter: ['data-mood']
+      })
+      signal.addEventListener('abort', () => observer.disconnect())
+    }
+
+    cleanup = () => controller.abort()
+  }
+
+  document.addEventListener('astro:page-load', setupNest)
+  document.addEventListener('astro:before-swap', () => cleanup())
+</script>
+
+<style>
+  .nest-title {
+    margin: 0;
+    color: var(--text-title);
+    font-family:
+      'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'SimSun', serif;
+    font-size: clamp(3.5rem, 12vw, 6.5rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: 0.06em;
+  }
+
+  .nest-period {
+    margin-left: -0.15em;
+  }
+
+  .nest-hero-bird {
+    width: clamp(5.5rem, 18vw, 8.5rem);
+    transform: translateY(-0.5rem) rotate(-4deg);
+  }
+
+  .nest-count {
+    display: inline-block;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nest-count:global(.bump) {
+    animation: nest-bump 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes nest-bump {
+    30% {
+      transform: translateY(-3px);
+      color: var(--text-title);
+    }
+  }
+
+  .nest-photo :global(img) {
+    display: block;
+  }
+</style>

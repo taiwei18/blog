@@ -1,7 +1,9 @@
 ---
+import xiaoyingPortrait from '@/assets/xiaoying/cage.jpg'
 import PageLayout, {
   type Props as PageLayoutProps
 } from '@/layouts/PageLayout.astro'
+import { Image } from 'astro:assets'
 
 const frontmatter: PageLayoutProps['frontmatter'] = {
   title: '关于',
@@ -236,6 +238,64 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
       </div>
     </section>
 
+    <!-- Companion Card: 小鹰 -->
+    <section class="flex flex-col gap-4">
+      <div
+        class="border-border-subtle flex items-center justify-between border-b pb-3 font-mono text-xs"
+      >
+        <h2 class="text-title font-sans text-base font-semibold tracking-tight">
+          同居成员
+        </h2>
+        <span class="text-muted font-mono text-xs tracking-wider uppercase"
+          >Companion</span
+        >
+      </div>
+
+      <a
+        href="/nest/"
+        data-spotlight
+        data-entrance
+        data-entrance-order="3"
+        class="spotlight-card group grid grid-cols-[7rem_1fr] gap-5 p-4 no-underline sm:grid-cols-[10rem_1fr] sm:gap-8 sm:p-6"
+      >
+        <div class="border-border-subtle overflow-hidden border">
+          <Image
+            src={xiaoyingPortrait}
+            alt="小鹰站在笼顶上，一只白色牡丹鹦鹉，粉色的喙"
+            widths={[224, 320]}
+            sizes="(min-width: 640px) 10rem, 7rem"
+            class="aspect-[4/5] h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+          />
+        </div>
+        <div class="flex min-w-0 flex-col justify-between gap-3">
+          <div class="flex flex-col gap-2">
+            <span class="text-accent font-mono text-xs tracking-wider uppercase"
+              >sys://companion/xiaoying</span
+            >
+            <h3 class="text-title font-sans text-lg font-semibold sm:text-xl">
+              小鹰 · 白色牡丹鹦鹉
+            </h3>
+            <p class="text-muted text-xs leading-relaxed sm:text-sm">
+              本站常驻咬人担当。白羽粉嘴，爱站键盘，爱咬人，最爱咬耳朵。右下角那只就是它。
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            {
+              ['咬人', '咬耳朵', '站键盘'].map((trait) => (
+                <span class="border-border-subtle bg-surface text-title border px-2.5 py-1 font-mono text-[11px]">
+                  {trait}
+                </span>
+              ))
+            }
+            <span
+              class="text-muted group-hover:text-title ml-auto font-mono text-xs transition-colors"
+              >去它的窝 →</span
+            >
+          </div>
+        </div>
+      </a>
+    </section>
+
     <!-- Dossier Card: Engineering Preferences & Manifesto -->
     <section class="flex flex-col gap-4">
       <div
@@ -251,7 +311,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
 
       <div
         data-entrance
-        data-entrance-order="3"
+        data-entrance-order="4"
         class="terminal-window flex flex-col gap-5 p-5 sm:p-8"
       >
         <!-- Titlebar & Tabs -->
