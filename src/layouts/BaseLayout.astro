@@ -17,6 +17,7 @@ import config from '@/theme.config'
 import { resolveImageUrl } from '@/util'
 import type { ImageMetadata } from 'astro'
 import { ClientRouter } from 'astro:transitions'
+import SpeedInsights from '@vercel/speed-insights/astro'
 
 export interface Props {
   frontmatter: Partial<{
@@ -198,5 +199,6 @@ const structuredDataJson = JSON.stringify([
       is:inline
       data-astro-rerun
       src="/zoom-vanilla.js/zoom-vanilla.min.js"></script>
+    <SpeedInsights />
   </body>
 </html>
