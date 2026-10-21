@@ -1,0 +1,84 @@
+<svg
+  class="signature"
+  width="112"
+  height="44"
+  viewBox="0 0 160 64"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-label="TaiWei"
+>
+  <path
+    class="signature-stroke"
+    style="--delay: 0ms; --duration: 300ms"
+    pathLength="1"
+    d="M7 20C22 13 40 17 54 12M32 17C29 28 26 43 19 47C14 50 11 46 16 42"
+  ></path>
+  <path
+    class="signature-stroke"
+    style="--delay: 260ms; --duration: 400ms"
+    pathLength="1"
+    d="M49 31C46 23 35 29 34 37C32 47 42 44 48 32C44 43 47 46 53 39L62 28C56 41 57 46 66 39"
+  ></path>
+  <path
+    class="signature-stroke"
+    style="--delay: 540ms; --duration: 80ms"
+    pathLength="1"
+    d="M64 20L65 19"></path>
+  <path
+    class="signature-stroke"
+    style="--delay: 620ms; --duration: 480ms"
+    pathLength="1"
+    d="M69 22C65 49 69 50 80 30C76 54 85 46 99 17M92 39C109 36 108 26 102 29C92 33 92 48 106 42L117 29C111 42 114 47 124 38"
+  ></path>
+  <path
+    class="signature-stroke"
+    style="--delay: 1040ms; --duration: 80ms"
+    pathLength="1"
+    d="M119 21L120 20"></path>
+  <path
+    class="signature-stroke signature-flourish"
+    style="--delay: 1100ms; --duration: 350ms"
+    pathLength="1"
+    d="M47 53C73 48 112 50 148 43"></path>
+</svg>
+
+<style>
+  .signature {
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+    color: var(--text-title);
+  }
+
+  .signature-flourish {
+    stroke-width: 1;
+  }
+
+  @media (max-width: 479px) {
+    .signature {
+      width: 5.75rem;
+      height: 2.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .signature-stroke {
+      stroke-dasharray: 1;
+      animation: write-signature var(--duration) linear var(--delay) both;
+    }
+  }
+
+  @keyframes write-signature {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

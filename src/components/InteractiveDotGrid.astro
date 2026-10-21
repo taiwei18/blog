@@ -1,0 +1,225 @@
+<interactive-dot-grid aria-hidden="true">
+  <canvas></canvas>
+</interactive-dot-grid>
+
+<script>
+  type Dot = { x: number; y: number; dx: number; dy: number }
+
+  class InteractiveDotGrid extends HTMLElement {
+    private controller?: AbortController
+    private resizeObserver?: ResizeObserver
+    private themeObserver?: MutationObserver
+    private intersectionObserver?: IntersectionObserver
+    private frame = 0
+
+    connectedCallback() {
+      const canvas = this.querySelector('canvas')!
+      const context = canvas.getContext('2d')
+      const hero = this.closest('section')
+      if (!context || !hero) return
+
+      this.controller = new AbortController()
+      const { signal } = this.controller
+      const motion = matchMedia('(prefers-reduced-motion: reduce)')
+      let width = 0
+      let height = 0
+      let color = ''
+      let dots: Dot[] = []
+      let pointer: { x: number; y: number } | null = null
+      let ripple: { x: number; y: number; radius: number } | null = null
+      let visible = true
+      let lastTime = 0
+
+      const draw = () => {
+        context.clearRect(0, 0, width, height)
+        context.fillStyle = color
+        for (const dot of dots) {
+          const influence = Math.min(1, Math.hypot(dot.dx, dot.dy) / 12)
+          context.globalAlpha = 0.25 + influence * 0.5
+          context.beginPath()
+          context.arc(
+            dot.x + dot.dx,
+            dot.y + dot.dy,
+            1 + influence * 0.45,
+            0,
+            Math.PI * 2
+          )
+          context.fill()
+        }
+        context.globalAlpha = 1
+      }
+
+      const stop = () => {
+        cancelAnimationFrame(this.frame)
+        this.frame = 0
+        pointer = null
+        ripple = null
+        for (const dot of dots) dot.dx = dot.dy = 0
+        draw()
+      }
+
+      const tick = (time: number) => {
+        this.frame = 0
+        const step = Math.min((time - lastTime) / 16.67, 2)
+        lastTime = time
+        let moving = false
+        if (ripple) {
+          ripple.radius += 5 * step
+          if (ripple.radius > Math.hypot(width, height) + 80) ripple = null
+        }
+        for (const dot of dots) {
+          let targetX = 0
+          let targetY = 0
+          if (pointer) {
+            const x = dot.x - pointer.x
+            const y = dot.y - pointer.y
+            const distance = Math.hypot(x, y)
+            const force = Math.max(0, 1 - distance / 80) ** 2 * 24
+            targetX += (x / (distance || 1)) * force
+            targetY += (y / (distance || 1)) * force
+          }
+          if (ripple) {
+            const x = dot.x - ripple.x
+            const y = dot.y - ripple.y
+            const distance = Math.hypot(x, y)
+            const force =
+              Math.max(0, 1 - Math.abs(distance - ripple.radius) / 36) * 14
+            targetX += (x / (distance || 1)) * force
+            targetY += (y / (distance || 1)) * force
+          }
+          const ease = 1 - 0.78 ** step
+          dot.dx += (targetX - dot.dx) * ease
+          dot.dy += (targetY - dot.dy) * ease
+          if (Math.abs(targetX - dot.dx) + Math.abs(targetY - dot.dy) > 0.02)
+            moving = true
+        }
+        draw()
+        if (moving || ripple) this.frame = requestAnimationFrame(tick)
+      }
+
+      const start = () => {
+        if (this.frame || motion.matches || !visible || document.hidden) return
+        lastTime = performance.now()
+        this.frame = requestAnimationFrame(tick)
+      }
+
+      const resize = () => {
+        const rect = this.getBoundingClientRect()
+        width = rect.width
+        height = rect.height
+        const dpr = Math.min(devicePixelRatio || 1, 2)
+        canvas.width = Math.round(width * dpr)
+        canvas.height = Math.round(height * dpr)
+        context.setTransform(dpr, 0, 0, dpr, 0, 0)
+        dots = []
+        for (let y = 12; y < height; y += 16) {
+          for (let x = 12; x < width; x += 16) dots.push({ x, y, dx: 0, dy: 0 })
+        }
+        color = getComputedStyle(this).color
+        stop()
+      }
+
+      const position = (event: PointerEvent) => {
+        const rect = this.getBoundingClientRect()
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top }
+      }
+
+      hero.addEventListener(
+        'pointermove',
+        (event) => {
+          if (event.pointerType === 'touch') return
+          pointer = position(event)
+          start()
+        },
+        { signal, passive: true }
+      )
+      hero.addEventListener(
+        'pointerleave',
+        () => {
+          pointer = null
+          start()
+        },
+        { signal }
+      )
+      hero.addEventListener(
+        'pointerdown',
+        (event) => {
+          const point = position(event)
+          if (point.x < 0 || point.x > width || point.y < 0 || point.y > height)
+            return
+          ripple = { ...point, radius: 0 }
+          start()
+        },
+        { signal, passive: true }
+      )
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          if (document.hidden) stop()
+        },
+        { signal }
+      )
+      motion.addEventListener('change', stop, { signal })
+      window.addEventListener('resize', resize, { signal })
+      this.resizeObserver = new ResizeObserver(resize)
+      this.resizeObserver.observe(this)
+      this.themeObserver = new MutationObserver(() => {
+        color = getComputedStyle(this).color
+        draw()
+      })
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-mode']
+      })
+      this.intersectionObserver = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting
+        if (!visible) stop()
+      })
+      this.intersectionObserver.observe(this)
+      resize()
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort()
+      this.resizeObserver?.disconnect()
+      this.themeObserver?.disconnect()
+      this.intersectionObserver?.disconnect()
+      cancelAnimationFrame(this.frame)
+      this.frame = 0
+    }
+  }
+
+  if (!customElements.get('interactive-dot-grid')) {
+    customElements.define('interactive-dot-grid', InteractiveDotGrid)
+  }
+</script>
+
+<style>
+  interactive-dot-grid {
+    position: absolute;
+    top: 3.5rem;
+    right: -0.5rem;
+    display: block;
+    width: 14rem;
+    height: 10rem;
+    color: var(--text-body);
+    mask-image: radial-gradient(ellipse at 65% 35%, #000 15%, transparent 72%);
+    pointer-events: none;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 639px) {
+    interactive-dot-grid {
+      top: 3.25rem;
+      right: -0.25rem;
+      width: 7.5rem;
+      height: 7rem;
+      opacity: 0.75;
+    }
+  }
+</style>
