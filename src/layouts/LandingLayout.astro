@@ -56,21 +56,6 @@ const recentPosts = allPosts.slice(0, 6)
             在代码与原理之间，留下一些思考。<br />
             把复杂的事，慢慢写清楚。
           </p>
-          <a href="/about/" class="hero-about hero-link">
-            <span>关于 TaiWei</span>
-            <svg
-              class="hero-arrow"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.4"
-              aria-hidden="true"
-            >
-              <path d="M5 19 19 5M5 5h14v14"></path>
-            </svg>
-          </a>
         </div>
       </section>
 
@@ -82,16 +67,6 @@ const recentPosts = allPosts.slice(0, 6)
           <h2 class="text-title font-sans text-xl font-medium tracking-tight">
             精选文章
           </h2>
-          <a
-            href="/posts/"
-            class="group text-muted hover:text-title inline-flex items-center gap-1.5 font-mono text-xs"
-          >
-            <span>查看全部 ({allPosts.length})</span>
-            <span
-              class="border-border-subtle bg-surface text-muted group-hover:border-accent group-hover:text-accent flex size-3.5 items-center justify-center border font-mono text-[9px]"
-              aria-hidden="true">→</span
-            >
-          </a>
         </div>
 
         <div class="flex flex-col">
@@ -219,36 +194,6 @@ const recentPosts = allPosts.slice(0, 6)
     font-size: 0.8125rem;
     line-height: 2;
     letter-spacing: 0.035em;
-  }
-
-  .hero-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    color: var(--text-title);
-    font-size: 0.75rem;
-    text-decoration: none;
-  }
-
-  .hero-link:focus-visible {
-    color: var(--hero-ink);
-    outline-color: var(--hero-ink);
-  }
-
-  @media (hover: hover) {
-    .hero-link:hover {
-      color: var(--hero-ink);
-    }
-  }
-
-  .hero-about {
-    flex-shrink: 0;
-    gap: 1rem;
-    color: var(--text-body);
-  }
-
-  .hero-arrow {
-    flex-shrink: 0;
   }
 
   @media (max-width: 479px) {
