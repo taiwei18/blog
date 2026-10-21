@@ -186,6 +186,19 @@ const structuredDataJson = JSON.stringify([
     />
     <ModeManager />
     <ClientRouter />
+    {
+      import.meta.env.PROD && (
+        <script
+          is:inline
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="8fd4ab04-9b7d-406f-bd5b-83cec472c150"
+          data-domains="www.heytaiwei.xyz,heytaiwei.xyz"
+          data-exclude-hash="true"
+          data-do-not-track="true"
+        />
+      )
+    }
     <link href="/zoom-vanilla.js/zoom.css" rel="stylesheet" />
   </head>
   <body class="relative min-h-screen">

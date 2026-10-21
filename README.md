@@ -80,6 +80,15 @@ pnpm test       # Vitest 单元测试
 
 站点通过 [Vercel](https://vercel.com) 部署：推送到 `main` 分支自动发布生产环境，其他分支生成预览部署。日常开发在 `dev` 分支进行，验证后合并到 `main`。
 
+### 访客统计
+
+全站通过 Umami Cloud 收集浏览量、访客、来源与设备等数据，在 [Umami 后台](https://cloud.umami.is/) 的 TaiWei 网站中查看。
+
+- 统计脚本位于 `src/layouts/BaseLayout.astro`，仅在生产构建中加载，并限定 `www.heytaiwei.xyz` 与 `heytaiwei.xyz` 上报；本地开发和 Vercel 预览域名不计入统计。
+- 页面切换由 Umami 自动统计，不要在 `astro:page-load` 中重复上报浏览事件。
+- 忽略 URL 锚点变化，尊重浏览器的 Do Not Track 设置。
+- Website ID 是公开的网站标识；接入不需要在代码中存放账号密码或 API 密钥。
+
 ## 致谢
 
 本站基于 [FjellOverflow](https://github.com/FjellOverflow) 的 [Nordlys](https://github.com/FjellOverflow/nordlys) 主题开发，并在此基础上对视觉设计、导航与动效做了大量改动。感谢原作者的开源工作。
