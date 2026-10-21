@@ -21,216 +21,216 @@
     cleanup()
     const media = gsap.matchMedia()
 
-    media.add('(prefers-reduced-motion: no-preference)', () => {
-      const controller = new AbortController()
-      const { signal } = controller
-      const activeTweens = new Set<gsap.core.Tween | gsap.core.Timeline>()
-      // lazy: false：起始帧同步写入，而不是推迟到 GSAP 下一次 tick，保证与 data-shown 同帧生效
-      const reset = { clearProps: 'transform,opacity', lazy: false }
-      const viewportBottom = window.innerHeight
+    media.add(
+      {
+        motion: '(prefers-reduced-motion: no-preference)',
+        reduced: '(prefers-reduced-motion: reduce)'
+      },
+      (context) => {
+        const motion = Boolean(context.conditions?.motion)
+        const controller = new AbortController()
+        const { signal } = controller
+        const activeTweens = new Set<gsap.core.Tween | gsap.core.Timeline>()
+        // lazy: false：起始帧同步写入，而不是推迟到 GSAP 下一次 tick，保证与 data-shown 同帧生效
+        const reset = { clearProps: 'transform,opacity,filter', lazy: false }
+        const viewportBottom = window.innerHeight
 
-      // 1. 首屏入场：标题、页面头部等关键区块依次浮现
-      const entrances = gsap.utils.toArray<HTMLElement>('[data-entrance]')
-      const lines = gsap.utils.toArray<HTMLElement>('[data-title-line]')
-      const entranceTimeline = gsap.timeline({
-        defaults: { ease: 'power3.out' }
-      })
-      activeTweens.add(entranceTimeline)
-
-      entrances.sort(
-        (a, b) =>
-          Number(a.dataset.entranceOrder ?? 0) -
-          Number(b.dataset.entranceOrder ?? 0)
-      )
-
-      if (entrances.length) {
-        markShown(entrances)
-        entranceTimeline.fromTo(
-          entrances,
-          { y: 10, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ...reset },
-          0
+        // 1. 首屏入场：标题、页面头部等关键区块依次浮现
+        const entrances = gsap.utils.toArray<HTMLElement>(
+          '[data-entrance]:not([data-shown])'
         )
-      }
-
-      if (lines.length) {
-        markShown(lines)
-        entranceTimeline.fromTo(
-          lines,
-          { yPercent: 105, opacity: 0 },
-          { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.08, ...reset },
-          0.04
+        const lines = gsap.utils.toArray<HTMLElement>(
+          '[data-title-line]:not([data-shown])'
         )
-      }
-
-      // 2. 列表区块：只有首屏可见的部分接在入场后依次浮现；
-      //    首屏以下直接显示，滚动时内容已就位，不会再闪烁或迟到。
-      const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal]')
-      const inView = reveals.filter(
-        (el) => el.getBoundingClientRect().top < viewportBottom
-      )
-      markShown(reveals)
-
-      inView.forEach((target, index) => {
-        const delay = 0.1 + Math.min(index * 0.04, 0.24)
-        const childItems = target.querySelectorAll<HTMLElement>(
-          '[data-reveal-child]'
-        )
-        const tween = childItems.length
-          ? gsap.fromTo(
-              childItems,
-              { y: 8, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                duration: 0.45,
-                stagger: 0.03,
-                delay,
-                ease: 'power3.out',
-                ...reset
-              }
-            )
-          : gsap.fromTo(
-              target,
-              { y: 10, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                duration: 0.5,
-                delay,
-                ease: 'power3.out',
-                ...reset
-              }
-            )
-        tween.eventCallback('onComplete', () => {
-          activeTweens.delete(tween)
+        const entranceTimeline = gsap.timeline({
+          defaults: { ease: 'power1.out' }
         })
-        activeTweens.add(tween)
-      })
+        activeTweens.add(entranceTimeline)
 
-      // 3. Subtle Number Counter Reveal
-      const counterObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue
-            counterObserver.unobserve(entry.target)
-            const el = entry.target as HTMLElement
-            const targetVal = Number(el.dataset.counterTarget || 0)
-            if (Number.isNaN(targetVal) || targetVal <= 0) continue
-
-            const obj = { val: 0 }
-            const tween = gsap.to(obj, {
-              val: targetVal,
-              duration: 0.8,
-              ease: 'power2.out',
-              onUpdate: () => {
-                el.textContent = String(Math.round(obj.val))
-              },
-              onComplete: () => {
-                el.textContent = String(targetVal)
-                activeTweens.delete(tween)
-              }
-            })
-            activeTweens.add(tween)
-          }
-        },
-        { threshold: 0.2 }
-      )
-      document
-        .querySelectorAll('[data-counter-target]')
-        .forEach((el) => counterObserver.observe(el))
-
-      // 4. Spotlight card pointer tracking
-      const spotlightCards =
-        document.querySelectorAll<HTMLElement>('[data-spotlight]')
-      spotlightCards.forEach((card) => {
-        card.addEventListener(
-          'pointermove',
-          (event) => {
-            const rect = card.getBoundingClientRect()
-            const x = event.clientX - rect.left
-            const y = event.clientY - rect.top
-            card.style.setProperty('--mouse-x', `${x}px`)
-            card.style.setProperty('--mouse-y', `${y}px`)
-          },
-          { signal }
-        )
-        card.addEventListener(
-          'pointerleave',
-          () => {
-            card.style.removeProperty('--mouse-x')
-            card.style.removeProperty('--mouse-y')
-          },
-          { signal }
-        )
-      })
-
-      // 5. Restrained Magnetic Micro-interaction on buttons & interactive tags
-      const finePointer = window.matchMedia(
-        '(hover: hover) and (pointer: fine)'
-      ).matches
-      const magneticElements = finePointer
-        ? document.querySelectorAll<HTMLElement>('[data-magnetic]')
-        : []
-      magneticElements.forEach((el) => {
-        const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'power3.out' })
-        const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3.out' })
-
-        el.addEventListener(
-          'pointermove',
-          (e) => {
-            const rect = el.getBoundingClientRect()
-            const centerX = rect.left + rect.width / 2
-            const centerY = rect.top + rect.height / 2
-            // Clamp offset to maximum 3.5px for understated tactile feel
-            const deltaX = Math.max(
-              -3.5,
-              Math.min(3.5, (e.clientX - centerX) * 0.2)
-            )
-            const deltaY = Math.max(
-              -3.5,
-              Math.min(3.5, (e.clientY - centerY) * 0.2)
-            )
-            xTo(deltaX)
-            yTo(deltaY)
-          },
-          { signal }
+        entrances.sort(
+          (a, b) =>
+            Number(a.dataset.entranceOrder ?? 0) -
+            Number(b.dataset.entranceOrder ?? 0)
         )
 
-        el.addEventListener(
-          'pointerleave',
-          () => {
-            xTo(0)
-            yTo(0)
-          },
-          { signal }
-        )
-      })
-
-      // 6. Focus accessibility bypass：键盘聚焦时立即完成入场，避免焦点落在透明元素上
-      document.addEventListener(
-        'focusin',
-        (event) => {
-          const target = event.target as HTMLElement
-          if (target.closest('section, main')) entranceTimeline.progress(1)
-          const element = target.closest('[data-reveal]')
-          if (element)
-            gsap.set(element, {
-              y: 0,
+        if (entrances.length) {
+          markShown(entrances)
+          entranceTimeline.fromTo(
+            entrances,
+            motion
+              ? { y: 12, opacity: 0, filter: 'blur(4px)' }
+              : { opacity: 0 },
+            {
+              ...(motion ? { y: 0, filter: 'blur(0px)' } : {}),
               opacity: 1,
-              clearProps: 'transform,opacity'
-            })
-        },
-        { signal }
-      )
+              duration: motion ? 0.3 : 0.15,
+              stagger: motion ? 0.1 : 0,
+              ...reset
+            },
+            0
+          )
+        }
 
-      return () => {
-        counterObserver.disconnect()
-        controller.abort()
-        activeTweens.forEach((t) => t.kill())
-        activeTweens.clear()
+        if (lines.length) {
+          markShown(lines)
+          entranceTimeline.fromTo(
+            lines,
+            motion
+              ? { y: 12, opacity: 0, filter: 'blur(4px)' }
+              : { opacity: 0 },
+            {
+              ...(motion ? { y: 0, filter: 'blur(0px)' } : {}),
+              opacity: 1,
+              duration: motion ? 0.3 : 0.15,
+              stagger: motion ? 0.1 : 0,
+              ...reset
+            },
+            0
+          )
+        }
+
+        // 2. 列表区块：只有首屏可见的部分接在入场后依次浮现；
+        //    首屏以下直接显示，滚动时内容已就位，不会再闪烁或迟到。
+        const reveals = gsap.utils.toArray<HTMLElement>(
+          '[data-reveal]:not([data-shown])'
+        )
+        const inView = reveals.filter(
+          (el) => el.getBoundingClientRect().top < viewportBottom
+        )
+        markShown(reveals)
+
+        inView.forEach((target, index) => {
+          const delay = motion ? 0.1 + index * 0.1 : 0
+          const childItems = target.querySelectorAll<HTMLElement>(
+            '[data-reveal-child]'
+          )
+          const tween = childItems.length
+            ? gsap.fromTo(
+                childItems,
+                motion
+                  ? { y: 12, opacity: 0, filter: 'blur(4px)' }
+                  : { opacity: 0 },
+                {
+                  ...(motion ? { y: 0, filter: 'blur(0px)' } : {}),
+                  opacity: 1,
+                  duration: motion ? 0.3 : 0.15,
+                  stagger: motion ? 0.1 : 0,
+                  delay,
+                  ease: 'power1.out',
+                  ...reset
+                }
+              )
+            : gsap.fromTo(
+                target,
+                motion
+                  ? { y: 12, opacity: 0, filter: 'blur(4px)' }
+                  : { opacity: 0 },
+                {
+                  ...(motion ? { y: 0, filter: 'blur(0px)' } : {}),
+                  opacity: 1,
+                  duration: motion ? 0.3 : 0.15,
+                  delay,
+                  ease: 'power1.out',
+                  ...reset
+                }
+              )
+          tween.eventCallback('onComplete', () => {
+            activeTweens.delete(tween)
+          })
+          activeTweens.add(tween)
+        })
+
+        // 3. Subtle Number Counter Reveal
+        const counterObserver = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue
+              counterObserver.unobserve(entry.target)
+              const el = entry.target as HTMLElement
+              const targetVal = Number(el.dataset.counterTarget || 0)
+              if (Number.isNaN(targetVal) || targetVal <= 0) continue
+              if (!motion) {
+                el.textContent = String(targetVal)
+                continue
+              }
+
+              const obj = { val: 0 }
+              const tween = gsap.to(obj, {
+                val: targetVal,
+                duration: 0.8,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  el.textContent = String(Math.round(obj.val))
+                },
+                onComplete: () => {
+                  el.textContent = String(targetVal)
+                  activeTweens.delete(tween)
+                }
+              })
+              activeTweens.add(tween)
+            }
+          },
+          { threshold: 0.2 }
+        )
+        document
+          .querySelectorAll('[data-counter-target]')
+          .forEach((el) => counterObserver.observe(el))
+
+        // 4. Spotlight card pointer tracking
+        const finePointer = window.matchMedia(
+          '(hover: hover) and (pointer: fine)'
+        ).matches
+        const spotlightCards =
+          motion && finePointer
+            ? document.querySelectorAll<HTMLElement>('[data-spotlight]')
+            : []
+        spotlightCards.forEach((card) => {
+          card.addEventListener(
+            'pointermove',
+            (event) => {
+              const rect = card.getBoundingClientRect()
+              const x = event.clientX - rect.left
+              const y = event.clientY - rect.top
+              card.style.setProperty('--mouse-x', `${x}px`)
+              card.style.setProperty('--mouse-y', `${y}px`)
+            },
+            { signal }
+          )
+          card.addEventListener(
+            'pointerleave',
+            () => {
+              card.style.removeProperty('--mouse-x')
+              card.style.removeProperty('--mouse-y')
+            },
+            { signal }
+          )
+        })
+
+        // Focus finishes entrances so the focused element is always visible.
+        document.addEventListener(
+          'focusin',
+          (event) => {
+            const target = event.target as HTMLElement
+            if (target.closest('section, main')) entranceTimeline.progress(1)
+            const element = target.closest('[data-reveal]')
+            if (element)
+              gsap.set(element, {
+                y: 0,
+                opacity: 1,
+                clearProps: 'transform,opacity,filter'
+              })
+          },
+          { signal }
+        )
+
+        return () => {
+          counterObserver.disconnect()
+          controller.abort()
+          activeTweens.forEach((t) => t.kill())
+          activeTweens.clear()
+        }
       }
-    })
+    )
 
     // 减少动态效果时 .motion-ready 不会被添加，但仍兜底放出所有元素
     markShown(Array.from(document.querySelectorAll(HIDDEN)))

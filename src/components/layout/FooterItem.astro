@@ -4,22 +4,22 @@ import { isAbsolute } from '@/util'
 
 export interface Props {
   item: NavItem
+  static?: boolean
 }
 
 const {
-  item: { href, icon, label }
+  item: { href, icon, label },
+  static: isStatic = false
 } = Astro.props
 ---
 
 <a
-  class="group hover:border-border-medium hover:text-accent flex size-11 items-center justify-center border border-transparent text-current/80 transition-all duration-200 active:scale-85"
+  class="press-feedback hover:border-border-medium hover:text-accent flex size-11 items-center justify-center border border-transparent text-current/80"
+  data-static={isStatic || undefined}
   href={href}
   target={isAbsolute(href) ? '_blank' : '_self'}
   aria-label={label}
   rel="noopener noreferrer"
 >
-  <span
-    title={label}
-    class={`iconify text-2xl transition-transform duration-300 ease-out group-hover:scale-110 ${icon}`}
-  ></span>
+  <span title={label} class={`iconify text-2xl ${icon}`}></span>
 </a>

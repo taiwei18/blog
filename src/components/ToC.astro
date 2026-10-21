@@ -53,14 +53,12 @@ const processedHeadings = filteredHeadings.map((h) => {
             <li class={h.depth === 3 ? 'pl-4 sm:pl-5' : ''}>
               <a
                 href={`#${h.slug}`}
-                class="group text-muted hover:text-title line-clamp-1 inline-flex items-baseline gap-2 py-0.5 no-underline transition-colors"
+                class="group text-muted hover:text-title line-clamp-1 inline-flex items-baseline gap-2 py-0.5 no-underline"
               >
-                <span class="text-faint group-hover:text-accent shrink-0 font-mono text-[10px] tabular-nums transition-colors">
+                <span class="text-faint group-hover:text-accent shrink-0 font-mono text-[10px] tabular-nums">
                   {h.indexStr}
                 </span>
-                <span class="leading-relaxed transition-transform duration-150 group-hover:translate-x-0.5">
-                  {h.text}
-                </span>
+                <span class="leading-relaxed">{h.text}</span>
               </a>
             </li>
           ))}
@@ -78,7 +76,7 @@ const processedHeadings = filteredHeadings.map((h) => {
               <a
                 href={`#${h.slug}`}
                 data-toc-slug={h.slug}
-                class="toc-aside-link text-muted hover:bg-surface-hover hover:text-title relative z-[1] line-clamp-2 block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed no-underline transition-[color,background-color,box-shadow] duration-200"
+                class="toc-aside-link text-muted hover:bg-surface-hover hover:text-title relative z-[1] line-clamp-2 block rounded-[2px] px-2.5 py-1 text-[12px] leading-relaxed no-underline transition-[background-color] duration-150"
               >
                 {h.text}
               </a>
@@ -95,8 +93,7 @@ const processedHeadings = filteredHeadings.map((h) => {
     font-weight: 500 !important;
   }
 
-  /* 液态高亮条：与顶栏指示条同一套手法，上下两条边各走一条弹簧，
-     前沿（滚动方向那一侧）先到，后沿跟上，跨越多个标题时会被拉长 */
+  /* Scroll updates position immediately; opacity is the only transition. */
   .toc-indicator {
     position: absolute;
     z-index: 0;
@@ -106,11 +103,7 @@ const processedHeadings = filteredHeadings.map((h) => {
     box-shadow: inset 2px 0 0 var(--accent);
     opacity: 0;
     pointer-events: none;
-    transition:
-      top var(--edge-top-duration, 0ms) var(--spring-snappy),
-      bottom var(--edge-bottom-duration, 0ms) var(--spring-snappy),
-      left 420ms var(--spring-snappy),
-      opacity 200ms ease;
+    transition: opacity 150ms ease-out;
   }
 
   .toc-indicator[data-visible='true'] {
@@ -134,7 +127,6 @@ const processedHeadings = filteredHeadings.map((h) => {
 
     let activeSlug = ''
     const indicator = document.querySelector<HTMLElement>('.toc-indicator')
-    let edgeTop: number | null = null
 
     const moveIndicator = (link: HTMLElement | undefined) => {
       if (!indicator || !link) return
@@ -143,22 +135,10 @@ const processedHeadings = filteredHeadings.map((h) => {
 
       const top = link.offsetTop
       const bottom = list.clientHeight - top - link.offsetHeight
-      const appearing = edgeTop === null
-      const direction = appearing ? 0 : Math.sign(top - (edgeTop as number))
-
-      indicator.style.setProperty(
-        '--edge-top-duration',
-        appearing ? '0ms' : direction < 0 ? '420ms' : '640ms'
-      )
-      indicator.style.setProperty(
-        '--edge-bottom-duration',
-        appearing ? '0ms' : direction > 0 ? '420ms' : '640ms'
-      )
       indicator.style.top = `${top}px`
       indicator.style.bottom = `${bottom}px`
       indicator.style.left = `${link.offsetLeft}px`
       indicator.dataset.visible = 'true'
-      edgeTop = top
     }
 
     const updateActiveHeading = () => {
@@ -191,7 +171,6 @@ const processedHeadings = filteredHeadings.map((h) => {
     // 目录宽度变化（字体加载、窗口缩放）会改变换行和高度：直接贴合，不做动画
     const list = indicator?.parentElement
     const resizeObserver = new ResizeObserver(() => {
-      edgeTop = null
       moveIndicator(
         Array.from(asideLinks).find(
           (link) => link.dataset.tocSlug === activeSlug

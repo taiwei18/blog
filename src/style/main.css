@@ -42,8 +42,10 @@
     background: var(--border-medium);
     border-radius: 9999px;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--border-strong);
+  @media (hover: hover) {
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-strong);
+    }
   }
 
   ::selection {
@@ -66,7 +68,13 @@
   img[data-img-embed=""],
   img[data-img-embed="true"] {
     border-radius: 2px;
-    border: 1px solid var(--border-subtle);
+    outline: 1px solid oklch(0 0 0 / 0.1);
+    outline-offset: -1px;
+  }
+
+  [data-mode="dark"] img[data-img-embed=""],
+  [data-mode="dark"] img[data-img-embed="true"] {
+    outline-color: oklch(1 0 0 / 0.1);
   }
 
   .zoom-overlay {
@@ -88,14 +96,29 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
+@utility press-feedback {
+  transition: scale 150ms ease-out;
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:not(:disabled, [data-static]):active {
+      scale: 0.96;
+    }
+  }
+}
+
 @utility subtle-card {
   background-color: var(--card-surface);
   border: 1px solid var(--border-subtle);
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms ease, background-color 220ms ease;
-  &:hover {
+  transition: background-color 150ms ease-out;
+  &:focus-within {
     border-color: var(--border-medium);
     background-color: var(--card-hover);
-    transform: translateY(-2px);
+  }
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--border-medium);
+      background-color: var(--card-hover);
+    }
   }
 }
 
@@ -109,13 +132,16 @@
     width: 100%;
     height: 1px;
     background-color: var(--text-title);
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transition: opacity 150ms ease-out;
   }
-  &:is(:hover, :focus-visible)::after {
-    transform: scaleX(1);
-    transform-origin: left;
+  &:focus-visible::after {
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    &:hover::after {
+      opacity: 1;
+    }
   }
 }
 
@@ -143,7 +169,7 @@ dropdown-parent[data-open='true'] > button {
 }
 
 .expressive-code .copy button {
-  transition: opacity 0.2s ease !important;
+  transition: opacity 150ms ease-out !important;
   border-radius: 2px !important;
 }
 
@@ -152,10 +178,10 @@ dropdown-parent[data-open='true'] > button {
   position: fixed;
   bottom: 28px;
   left: 50%;
-  transform: translateX(-50%) translateY(12px);
+  transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 150ms ease-out;
   z-index: 10000;
   background: var(--card-surface);
   border: 1px solid var(--border-medium);
@@ -167,18 +193,11 @@ dropdown-parent[data-open='true'] > button {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
 }
 .anchor-toast.show {
-  transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
 
 .heading-link.is-copied {
-  animation: anchor-pop 360ms var(--ease-surface);
-}
-
-@keyframes anchor-pop {
-  0% { transform: scale(0.6); opacity: 0.4; }
-  60% { transform: scale(1.18); opacity: 1; }
-  100% { transform: scale(1); }
+  opacity: 1;
 }
 
 /* 触屏设备无 hover，锚点常驻淡显，便于点按复制 */
@@ -195,11 +214,11 @@ dropdown-parent[data-open='true'] > button {
  * 脚本若未能运行，2.5 秒后由 motion-failsafe 兜底显示。
  */
 .motion-ready :is([data-entrance], [data-title-line], [data-reveal]):not([data-shown]) {
-  opacity: 0;
-  animation: motion-failsafe 0s linear 2.5s forwards;
+  animation: motion-failsafe 2.5s step-end both;
 }
 
 @keyframes motion-failsafe {
+  from { opacity: 0; }
   to { opacity: 1; }
 }
 
@@ -209,14 +228,19 @@ dropdown-parent[data-open='true'] > button {
   background-position: 0 100%;
   background-repeat: no-repeat;
   background-size: 0 1px;
-  transition: background-size 220ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease;
 }
 
-.interactive-underline:hover,
 .interactive-underline:focus-visible {
   text-decoration: none !important;
   background-size: 100% 1px;
   color: var(--text-title);
+}
+
+@media (hover: hover) {
+  .interactive-underline:hover {
+    background-size: 100% 1px;
+    color: var(--text-title);
+  }
 }
 
 .dropdown-surface {
@@ -277,47 +301,20 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   isolation: isolate;
 }
 
-.post-row::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: -1px -12px;
-  pointer-events: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 2px;
-  background: var(--card-surface);
-  box-shadow: inset 0 1px color-mix(in oklab, var(--text-title) 4%, transparent), 0 8px 24px -16px oklch(10% 0.01 170 / 0.18);
-  opacity: 0;
-  transform: scale(0.99);
-  transition: opacity 220ms ease, transform 300ms var(--ease-surface);
+/* 悬停反馈全部交给排版：标题变实墨色 + 下划线展开，描述文字提升一档。
+   不加底色、不加描边、不加位移，列表本身的分隔线保持完整。 */
+.post-row .post-desc {
+  color: var(--text-muted);
+  transition: color 160ms ease-out;
 }
 
-.post-arrow {
-  flex-shrink: 0;
-  opacity: 0.4;
-  transform: translate(-2px, 2px);
-  transition: transform 260ms var(--ease-surface), opacity 180ms ease;
-}
-
-.post-row:focus-within::before {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.post-row:focus-within .post-arrow {
-  opacity: 1;
-  transform: translate(0, 0);
+.post-row:focus-within .post-desc {
+  color: var(--text-body);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .post-row:hover::before {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .post-row:hover .post-arrow {
-    opacity: 1;
-    transform: translate(0, 0);
+  .post-row:hover .post-desc {
+    color: var(--text-body);
   }
 }
 
@@ -331,7 +328,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   pointer-events: none;
   z-index: 30;
   opacity: 0;
-  will-change: opacity;
   transition: opacity 160ms ease-out;
 }
 
@@ -385,6 +381,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 /* Floating navigation: borrows new.studio's wide frosted bar and expanding menu. */
 .site-island {
   position: relative;
+  border: 1px solid transparent;
   border-radius: 8px;
   background: color-mix(in oklab, var(--bg-canvas) 65%, transparent);
   box-shadow:
@@ -455,16 +452,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
     0 12px 34px 0 rgba(0, 0, 0, 0.58);
 }
 
-.brand-link svg {
-  transition: transform 300ms var(--ease-surface);
-}
-
-.brand-link:hover svg {
-  transform: rotate(-3deg) scale(1.04);
-}
-
-/* 液态指示条：left / right 各自过渡，前沿时长短、后沿时长长（由脚本按方向写入），
-   移动时自然被拉长，到位后弹簧收拢 */
+/* Frequent navigation feedback stays in place and only fades. */
 .nav-indicator {
   position: absolute;
   z-index: 0;
@@ -474,17 +462,11 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   background: color-mix(in oklab, var(--text-title) 7%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text-title) 8%, transparent);
   opacity: 0;
-  transform: scale(0.9);
-  transition:
-    left var(--edge-left-duration, 0ms) var(--spring-snappy),
-    right var(--edge-right-duration, 0ms) var(--spring-snappy),
-    opacity 200ms ease,
-    transform 420ms var(--spring-snappy);
+  transition: opacity 150ms ease-out;
 }
 
 .nav-indicator[data-visible="true"] {
   opacity: 1;
-  transform: scale(1);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -537,19 +519,21 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   border: 1px solid transparent;
   border-radius: 3px;
   transition:
-    color 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease,
-    transform 220ms var(--ease-surface);
+    background-color 150ms ease-out,
+    scale 150ms ease-out;
 }
 
-.nav-control:hover {
-  border-color: var(--border-subtle);
-  background: var(--card-hover);
+@media (hover: hover) {
+  .nav-control:hover {
+    border-color: var(--border-subtle);
+    background: var(--card-hover);
+  }
 }
 
-.nav-control:active {
-  transform: scale(0.92);
+@media (prefers-reduced-motion: no-preference) {
+  .nav-control:not(:disabled, [data-static]):active {
+    scale: 0.96;
+  }
 }
 
 .menu-toggle-btn {
@@ -558,9 +542,8 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
     width 480ms var(--spring-soft),
     opacity 220ms ease 140ms,
     filter 260ms ease 120ms,
-    color 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease,
+    background-color 150ms ease-out,
+    scale 150ms ease-out,
     transform 520ms var(--spring-snappy) 80ms,
     visibility 0s linear;
 }
@@ -570,8 +553,10 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   line-height: 1;
 }
 
-.nav-mode-toggle:hover {
-  background: var(--card-hover);
+@media (hover: hover) {
+  .nav-mode-toggle:hover {
+    background: var(--card-hover);
+  }
 }
 
 .studio-hamburger {
@@ -592,7 +577,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   background: currentColor;
   transform-origin: center;
   transition:
-    width 200ms ease,
     transform 460ms var(--spring-snappy);
 }
 
@@ -600,9 +584,10 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   width: 12px;
 }
 
-.menu-toggle-btn:hover .line-2,
-.menu-toggle-btn[aria-expanded="true"] .line-2 {
-  width: 17px;
+@media (hover: hover) {
+  .menu-toggle-btn:hover .line-2 {
+    width: 17px;
+  }
 }
 
 .menu-toggle-btn[aria-expanded="true"] .line-1 {
@@ -610,6 +595,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 }
 
 .menu-toggle-btn[aria-expanded="true"] .line-2 {
+  width: 17px;
   transform: translateY(-2.75px) rotate(-45deg);
 }
 
@@ -631,29 +617,24 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 
 .studio-drawer > .drawer-inner {
   min-height: 0;
-  overflow: hidden;
+  max-height: calc(100dvh - 6rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .studio-drawer[data-open="true"] {
   grid-template-rows: 1fr;
 }
 
-/* 抽屉内容随展开依次浮现；收起时立即淡出，不拖尾 */
+/* Menu content uses a short fade in either direction. */
 .drawer-reveal {
   opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 140ms ease,
-    transform 140ms ease;
+  transition: opacity 150ms ease-out;
 }
 
 .studio-drawer[data-open="true"] .drawer-reveal {
   opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 320ms ease,
-    transform 480ms var(--ease-surface);
-  transition-delay: calc(90ms + var(--i, 0) * 35ms);
 }
 
 .drawer-caption {
@@ -679,13 +660,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 
 .drawer-main-link > span:first-child {
   display: inline-block;
-  transition: transform 320ms var(--ease-surface);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .drawer-main-link:hover > span:first-child {
-    transform: translateX(6px);
-  }
 }
 
 .drawer-main-link::after {
@@ -698,32 +672,29 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   font-weight: 400;
   letter-spacing: 0;
   opacity: 0;
-  transform: translate(-4px, 4px);
-  transition:
-    opacity 180ms ease,
-    transform 260ms var(--ease-surface);
+  transition: opacity 150ms ease-out;
 }
 
-.drawer-main-link:is(:hover, :focus-visible)::after {
+.drawer-main-link:focus-visible::after {
   opacity: 0.58;
-  transform: translate(0, 0);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  /* 箭头跟随标题右移，保持间距 */
   .drawer-main-link:hover::after {
-    transform: translate(6px, 0);
+    opacity: 0.58;
   }
 }
 
 .drawer-small-link {
   width: fit-content;
   padding-block: 0.125rem;
-  transition: opacity 180ms ease;
+  transition: opacity 150ms ease-out;
 }
 
-.drawer-small-link:hover {
-  opacity: 0.48;
+@media (hover: hover) {
+  .drawer-small-link:hover {
+    opacity: 0.48;
+  }
 }
 
 @media (max-width: 639px) {
@@ -734,11 +705,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
 
 .interactive-underline > span[aria-hidden='true']:not(.iconify) {
   display: inline-block;
-  transition: transform 260ms var(--ease-surface);
-}
-
-.interactive-underline:is(:hover, :focus-visible) > span[aria-hidden='true']:not(.iconify) {
-  transform: translate(2px, -2px);
 }
 
 /* 全站 Typography 排版微调 */
@@ -757,10 +723,11 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   text-decoration: underline !important;
   text-underline-offset: 3px !important;
   text-decoration-color: var(--border-medium) !important;
-  transition: text-decoration-color 0.2s ease;
 }
-.prose a:not(:where(.not-prose, .not-prose *, .interactive-underline, .interactive-underline *, [class*='no-underline'])):hover {
-  text-decoration-color: var(--text-title) !important;
+@media (hover: hover) {
+  .prose a:not(:where(.not-prose, .not-prose *, .interactive-underline, .interactive-underline *, [class*='no-underline'])):hover {
+    text-decoration-color: var(--text-title) !important;
+  }
 }
 .prose blockquote {
   color: var(--text-muted) !important;
@@ -819,7 +786,6 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
   border-radius: 2px;
   overflow: hidden;
   box-shadow: inset 0 1px color-mix(in oklab, var(--text-title) 4%, transparent);
-  transition: border-color 220ms ease, box-shadow 220ms ease;
 }
 
 .spotlight-card::before {
@@ -834,7 +800,7 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
     transparent 65%
   );
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity 150ms ease-out;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -861,6 +827,23 @@ dropdown-parent[data-open='true'] .tabler--chevron-down {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .drawer-reveal,
+  .post-desc,
+  .nav-indicator,
+  .anchor-toast,
+  .spotlight-card::before,
+  #scroll-to-top {
+    transition-property: opacity !important;
+    transition-duration: 150ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .nav-desktop-cluster,
+  .menu-toggle-btn {
+    filter: none !important;
+    transform: none !important;
   }
 }
 

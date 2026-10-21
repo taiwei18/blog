@@ -1,7 +1,17 @@
+---
+export interface Props {
+  static?: boolean
+}
+
+const { static: isStatic = false } = Astro.props
+---
+
 <dark-light-toggle class="inline-flex items-center">
   <button
+    type="button"
+    data-static={isStatic || undefined}
     title="Toggle dark & light mode"
-    class="group text-muted hover:border-border-subtle hover:bg-card-hover hover:text-title flex size-7 items-center justify-center border border-transparent transition-[color,background-color,border-color,scale] duration-200 active:scale-90"
+    class="group text-muted hover:border-border-subtle hover:bg-card-hover hover:text-title flex size-7 items-center justify-center border border-transparent transition-[color,background-color,border-color,scale] duration-150 ease-out"
     aria-label="Toggle dark & light mode"
   >
     <span class="mode-icons grid text-sm" aria-hidden="true">
@@ -31,6 +41,8 @@
 
         const switchMode = () => {
           window.mode.setMode(newMode)
+          // Commit the new colors while page transitions are suppressed.
+          void root.offsetHeight
           document
             .querySelectorAll('dark-light-toggle button')
             .forEach((toggle) =>
@@ -41,8 +53,7 @@
             )
         }
 
-        // 换色期间关掉全站的颜色过渡（图标换位除外）：否则 body、页脚、顶栏
-        // 各按 240~300ms 各自渐变，新主题截图是变色到一半的页面
+        // Keep only the contextual icon cross-fade during the theme swap.
         root.classList.add('theme-switching')
         const releaseTransitions = () =>
           requestAnimationFrame(() =>
@@ -98,46 +109,45 @@
 </script>
 
 <style is:global>
-  /* 图标换位：同一个格子里叠放月亮和太阳。
-     可见态（入场）：稍晚开始，沿弹簧转入、去模糊；
-     隐藏态（退场）：立刻开始，快速转出、缩小、模糊。交接处不叠影。
-     过渡写在目标状态上，所以隐藏态的选择器优先级必须高于 .mode-icon */
+  /* Both icons stay mounted, so state changes can cross-fade in place. */
   .mode-icon {
     grid-area: 1 / 1;
     opacity: 1;
-    filter: blur(0);
-    rotate: 0deg;
-    scale: 1;
-    transition:
-      opacity 220ms ease 70ms,
-      filter 260ms ease 70ms,
-      rotate 560ms var(--spring-snappy) 40ms,
-      scale 560ms var(--spring-snappy) 40ms;
+    transition: opacity 300ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   [data-mode='light'] .mode-icon-sun,
   [data-mode='dark'] .mode-icon-moon {
     opacity: 0;
-    filter: blur(3px);
-    rotate: 90deg;
-    scale: 0.5;
-    transition:
-      opacity 140ms ease,
-      filter 160ms ease,
-      rotate 220ms ease-in,
-      scale 220ms ease-in;
   }
 
-  .mode-icons {
-    transition: rotate 420ms var(--spring-snappy);
-  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mode-icon {
+      filter: blur(0);
+      scale: 1;
+      transition-property: opacity, filter, scale;
+    }
 
-  @media (hover: hover) and (pointer: fine) {
-    button:hover > .mode-icons {
-      rotate: 12deg;
+    [data-mode='light'] .mode-icon-sun,
+    [data-mode='dark'] .mode-icon-moon {
+      filter: blur(4px);
+      scale: 0.25;
+    }
+
+    dark-light-toggle button:not(:disabled, [data-static]):active {
+      scale: 0.96;
     }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    dark-light-toggle .mode-icon {
+      transition-duration: 300ms !important;
+    }
+  }
+
+  .theme-switching,
+  .theme-switching::before,
+  .theme-switching::after,
   .theme-switching *:not(.mode-icon),
   .theme-switching *::before,
   .theme-switching *::after {

@@ -21,13 +21,13 @@ const { previous, next } = await adjacentPosts(post)
           <a
             data-reveal-child
             href={`/posts/${next.id}/`}
-            class="group subtle-card flex flex-col items-start p-4 text-left no-underline active:scale-[0.98]"
+            class="group subtle-card flex flex-col items-start p-4 text-left no-underline"
           >
-            <div class="text-accent/80 flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-x-0.5">
+            <div class="text-accent/80 flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase">
               <span class="iconify tabler--arrow-left text-base" />
               <span>下一篇</span>
             </div>
-            <span class="text-title group-hover:text-accent mt-2 line-clamp-1 text-base font-medium transition-colors duration-200 sm:text-lg">
+            <span class="text-title group-hover:text-accent mt-2 line-clamp-1 text-base font-medium sm:text-lg">
               {next.data.title}
             </span>
           </a>
@@ -40,13 +40,13 @@ const { previous, next } = await adjacentPosts(post)
           <a
             data-reveal-child
             href={`/posts/${previous.id}/`}
-            class="group subtle-card flex flex-col items-end p-4 text-right no-underline active:scale-[0.98]"
+            class="group subtle-card flex flex-col items-end p-4 text-right no-underline"
           >
-            <div class="text-accent/80 flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5">
+            <div class="text-accent/80 flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase">
               <span>上一篇</span>
               <span class="iconify tabler--arrow-right text-base" />
             </div>
-            <span class="text-title group-hover:text-accent mt-2 line-clamp-1 text-base font-medium transition-colors duration-200 sm:text-lg">
+            <span class="text-title group-hover:text-accent mt-2 line-clamp-1 text-base font-medium sm:text-lg">
               {previous.data.title}
             </span>
           </a>

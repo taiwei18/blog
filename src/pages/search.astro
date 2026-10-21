@@ -44,11 +44,14 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
         aria-label="搜索文章"
         autocomplete="off"
         placeholder="输入关键词进行搜索..."
-        class="border-border-subtle bg-surface text-title placeholder:text-muted focus:border-accent focus:ring-accent w-full border px-4 py-3 font-sans text-base transition-colors focus:ring-1 focus:outline-none sm:text-sm"
+        class="border-border-subtle bg-surface text-title placeholder:text-muted focus:border-accent focus:ring-accent w-full border px-4 py-3 font-sans text-base focus:ring-1 focus:outline-none sm:text-sm"
       />
       <button
         id="search-clear"
-        class="border-border-subtle bg-surface text-muted hover:border-accent hover:text-accent invisible absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border px-2 py-0.5 font-mono text-[10px] transition-colors"
+        type="button"
+        aria-label="清空搜索"
+        title="清空搜索（Esc）"
+        class="press-feedback border-border-subtle bg-surface text-muted hover:border-accent hover:text-accent invisible absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer border px-2 py-0.5 font-mono text-[10px]"
       >
         ESC
       </button>
@@ -103,6 +106,11 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
     private timeoutId?: number
     private requestId = 0
 
+    disconnectedCallback() {
+      window.clearTimeout(this.timeoutId)
+      this.requestId++
+    }
+
     connectedCallback() {
       const searchInput = this.querySelector<HTMLInputElement>('input')
       const clearBtn = this.querySelector<HTMLButtonElement>('button')
@@ -122,6 +130,15 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
 
       const clearResults = () => resultsContainer.replaceChildren()
 
+      const clearSearch = () => {
+        window.clearTimeout(this.timeoutId)
+        this.requestId++
+        searchInput.value = ''
+        clearResults()
+        setStatus('等待输入...')
+        clearBtn.classList.add('invisible')
+      }
+
       const renderResults = (results: SearchResult[], total: number) => {
         clearResults()
 
@@ -130,10 +147,9 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
           const link = document.createElement('a')
           const excerpt = document.createElement('div')
 
-          item.className =
-            'py-4 first:pt-0 transition-transform duration-200 hover:translate-x-1'
+          item.className = 'py-4 first:pt-0'
           link.className =
-            'font-sans text-base font-medium text-title hover:opacity-80 transition-opacity block'
+            'font-sans text-base font-medium text-title hover:opacity-80 transition-opacity duration-150 block'
           link.href = result.url
           link.textContent = result.title
           excerpt.className =
@@ -155,9 +171,7 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
         const trimmedQuery = query.trim()
 
         if (!trimmedQuery) {
-          clearResults()
-          setStatus('等待输入...')
-          clearBtn.classList.add('invisible')
+          clearSearch()
           return
         }
 
@@ -213,6 +227,11 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
 
       searchInput.addEventListener('input', () => {
         window.clearTimeout(this.timeoutId)
+        this.requestId++
+        if (!searchInput.value.trim()) {
+          clearSearch()
+          return
+        }
         this.timeoutId = window.setTimeout(
           () => performSearch(searchInput.value),
           SEARCH_DELAY
@@ -220,11 +239,14 @@ const serializedSearchDocuments = JSON.stringify(searchDocuments).replace(
       })
 
       clearBtn.addEventListener('click', () => {
-        searchInput.value = ''
-        clearResults()
-        setStatus('等待输入...')
-        clearBtn.classList.add('invisible')
+        clearSearch()
         searchInput.focus()
+      })
+
+      searchInput.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return
+        event.preventDefault()
+        clearSearch()
       })
 
       // 支持从 URL ?q= 参数初始化搜索

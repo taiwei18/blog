@@ -190,7 +190,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
                   'Vite',
                   'Node.js'
                 ].map((tech) => (
-                  <span class="border-border-subtle bg-surface text-title hover:border-accent hover:text-accent border px-3 py-1.5 font-mono text-xs transition-all duration-200">
+                  <span class="border-border-subtle bg-surface text-title hover:border-accent hover:text-accent border px-3 py-1.5 font-mono text-xs">
                     {tech}
                   </span>
                 ))
@@ -225,7 +225,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
                   'Pagefind WASM',
                   'Tailwind 4'
                 ].map((tool) => (
-                  <span class="border-border-subtle bg-surface text-title hover:border-accent hover:text-accent border px-3 py-1.5 font-mono text-xs transition-all duration-200">
+                  <span class="border-border-subtle bg-surface text-title hover:border-accent hover:text-accent border px-3 py-1.5 font-mono text-xs">
                     {tool}
                   </span>
                 ))
@@ -269,19 +269,19 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
           >
             <button
               data-term-tab="manifesto"
-              class="terminal-tab active border-accent bg-accent/10 text-accent shrink-0 cursor-pointer border px-2.5 py-1 transition-colors"
+              class="terminal-tab active border-accent bg-accent/10 text-accent shrink-0 cursor-pointer border px-2.5 py-1"
             >
               manifesto.md
             </button>
             <button
               data-term-tab="specs"
-              class="terminal-tab text-muted hover:text-title shrink-0 cursor-pointer border border-transparent px-2.5 py-1 transition-colors"
+              class="terminal-tab text-muted hover:text-title shrink-0 cursor-pointer border border-transparent px-2.5 py-1"
             >
               toolchain.json
             </button>
             <button
               data-term-tab="log"
-              class="terminal-tab text-muted hover:text-title shrink-0 cursor-pointer border border-transparent px-2.5 py-1 transition-colors"
+              class="terminal-tab text-muted hover:text-title shrink-0 cursor-pointer border border-transparent px-2.5 py-1"
             >
               principles.log
             </button>
@@ -376,7 +376,7 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
           })
           .join('')
 
-        if (step >= steps && timer !== undefined) {
+        if ((reduced.matches || step >= steps) && timer !== undefined) {
           window.clearInterval(timer)
           element.textContent = originalText
         }
@@ -392,11 +392,6 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
     if (nameEl) {
       const nameText = nameEl.textContent?.trim() || 'TAIWEI'
       scramble(nameEl, nameText, 0.9)
-      nameEl.addEventListener(
-        'mouseenter',
-        () => scramble(nameEl, nameText, 0.6),
-        { signal }
-      )
     }
 
     // 3. Spotlight 指针追踪由全局 Motion.astro 统一处理

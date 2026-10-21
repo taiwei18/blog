@@ -19,12 +19,6 @@ const { id, data } = Astro.props.post
       data-astro-prefetch
     >
       <span>{data.title}</span>
-      <span
-        aria-hidden="true"
-        class="post-arrow border-border-subtle bg-surface/80 text-accent flex size-4 shrink-0 items-center justify-center border text-[10px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-      >
-        <span class="iconify tabler--arrow-up-right text-[11px]"></span>
-      </span>
     </a>
     <time
       class="text-muted shrink-0 font-mono text-xs tabular-nums"
@@ -34,7 +28,7 @@ const { id, data } = Astro.props.post
     </time>
   </div>
 
-  <p class="text-body line-clamp-2 font-sans text-sm leading-relaxed">
+  <p class="post-desc line-clamp-2 font-sans text-sm leading-relaxed">
     {data.description}
   </p>
 
@@ -43,7 +37,7 @@ const { id, data } = Astro.props.post
       data.tags.map((tag: string) => (
         <a
           href={`/tags/${tag}/`}
-          class="text-muted hover:text-title hover:bg-surface-hover px-1.5 py-0.5 font-mono text-xs transition-colors"
+          class="text-muted hover:text-title hover:bg-surface-hover px-1.5 py-0.5 font-mono text-xs"
         >
           #{tag}
         </a>

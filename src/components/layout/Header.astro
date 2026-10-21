@@ -92,7 +92,7 @@ const isActive = (item: NavItemType) =>
                   href={item.href}
                   aria-current={isActive(item) ? 'page' : undefined}
                   class:list={[
-                    'nav-primary-link relative z-[1] block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-200 focus-visible:outline-none',
+                    'nav-primary-link relative z-[1] block px-3 py-2 text-[0.8125rem] tracking-[-0.02em] transition-opacity duration-150 focus-visible:outline-none',
                     isActive(item)
                       ? 'text-title'
                       : 'text-muted hover:text-title'
@@ -162,7 +162,7 @@ const isActive = (item: NavItemType) =>
                     href={item.href}
                     aria-current={isActive(item) ? 'page' : undefined}
                     class:list={[
-                      'drawer-main-link drawer-reveal group relative w-fit text-[clamp(1.85rem,4vw,3.75rem)] leading-[0.95] tracking-[-0.055em] transition-opacity duration-200 focus-visible:outline-none',
+                      'drawer-main-link drawer-reveal group relative w-fit text-[clamp(1.85rem,4vw,3.75rem)] leading-[0.95] tracking-[-0.055em] transition-opacity duration-150 focus-visible:outline-none',
                       isActive(item)
                         ? 'text-title'
                         : 'text-title/76 hover:text-title'
@@ -333,7 +333,7 @@ const isActive = (item: NavItemType) =>
       link.addEventListener('click', () => setOpen(false), { signal })
     })
 
-    // 液态指示条：左右两条边各走一条弹簧，前沿快、后沿慢，移动时被拉长再回弹
+    // Keep hover and keyboard navigation feedback immediate.
     const navPrimary = island.querySelector<HTMLElement>('.nav-primary')
     const indicator = navPrimary?.querySelector<HTMLElement>('.nav-indicator')
     const navLinks = Array.from(
@@ -342,7 +342,6 @@ const isActive = (item: NavItemType) =>
     const activeLink = navLinks.find(
       (link) => link.getAttribute('aria-current') === 'page'
     )
-    let edgeLeft = Number.parseFloat(indicator?.style.left ?? '') || null
     const moveIndicator = (link: HTMLElement | null | undefined) => {
       if (!navPrimary || !indicator) return
       if (!link) {
@@ -352,31 +351,22 @@ const isActive = (item: NavItemType) =>
 
       const left = link.offsetLeft
       const right = navPrimary.clientWidth - left - link.offsetWidth
-      const appearing =
-        indicator.dataset.visible !== 'true' || edgeLeft === null
-      const direction = edgeLeft === null ? 0 : Math.sign(left - edgeLeft)
-
-      indicator.style.setProperty(
-        '--edge-left-duration',
-        appearing ? '0ms' : direction < 0 ? '420ms' : '620ms'
-      )
-      indicator.style.setProperty(
-        '--edge-right-duration',
-        appearing ? '0ms' : direction > 0 ? '420ms' : '620ms'
-      )
       indicator.style.left = `${left}px`
       indicator.style.right = `${right}px`
       indicator.dataset.visible = 'true'
-      edgeLeft = left
     }
 
     if (navPrimary && indicator) {
-      // 从上一页带来的位置先落定一帧，再弹到本页的激活项
       requestAnimationFrame(() => moveIndicator(activeLink))
+      const hoverMedia = window.matchMedia('(hover: hover) and (pointer: fine)')
       navLinks.forEach((link) => {
-        link.addEventListener('pointerenter', () => moveIndicator(link), {
-          signal
-        })
+        link.addEventListener(
+          'pointerenter',
+          () => {
+            if (hoverMedia.matches) moveIndicator(link)
+          },
+          { signal }
+        )
         link.addEventListener('focus', () => moveIndicator(link), { signal })
       })
       navPrimary.addEventListener(
@@ -395,7 +385,6 @@ const isActive = (item: NavItemType) =>
       // 字体加载、窗口变化会改变链接宽度：直接贴合，不做动画
       const resizeObserver = new ResizeObserver(() => {
         if (indicator.dataset.visible !== 'true') return
-        edgeLeft = null
         indicator.dataset.visible = 'false'
         moveIndicator(
           navLinks.find((link) => link.matches(':hover, :focus-visible')) ??

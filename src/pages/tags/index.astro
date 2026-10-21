@@ -44,12 +44,11 @@ const frontmatter: PageLayoutProps['frontmatter'] = {
       tagsWithUsage.map(({ tag, usage }) => (
         <a
           data-reveal-child
-          data-magnetic
-          class="group subtle-card flex items-center justify-between p-3 no-underline active:scale-[0.98]"
+          class="group subtle-card flex items-center justify-between p-3 no-underline"
           href={`/tags/${tag}/`}
           data-astro-prefetch
         >
-          <span class="text-body group-hover:text-title truncate font-sans text-sm transition-colors">
+          <span class="text-body group-hover:text-title truncate font-sans text-sm">
             #{tag}
           </span>
           <span class="text-muted group-hover:text-title font-mono text-xs tabular-nums">
