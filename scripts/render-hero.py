@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 W, H = 1440, 800
-DURATION = 12
+DURATION = 24
 MOBILE = False
 FONT_DIR = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts"
 
@@ -50,7 +50,7 @@ def text(image, content, x, y, size, opacity=1, face="serif", ink=24):
 def reveal(image, content, x, y, size, local, delay=0, face="serif", ink=24):
     # Independent letters have overlapping, zero-velocity arrival curves.
     for i, char in enumerate(content):
-        p = ease((local - delay - i * 0.035) / 0.7)
+        p = ease((local - delay - i * 0.055) / 1.15)
         text(image, char, x + i * size * 1.035, y + (1 - p) * 65, size, p, face, ink)
 
 
@@ -129,13 +129,13 @@ def scene(number, local, time):
 
 
 def frame(t):
-    # Signal motion within the first second, then hold each message for reading.
-    cuts = [(0.8, 0, 1), (4.4, 1, 2), (8.4, 2, 0)]
-    starts = {0: 0, 1: 0.8, 2: 4.4}
+    # Original pacing: long reading holds and 1.4 second matched transitions.
+    cuts = [(5.2, 0, 1), (11.6, 1, 2), (18.4, 2, 0)]
+    starts = {0: 0, 1: 5.2, 2: 11.6}
     active = 0
     for start, old, new in cuts:
-        if start <= t < start + 0.9:
-            p = ease((t - start) / 0.9)
+        if start <= t < start + 1.4:
+            p = ease((t - start) / 1.4)
             outgoing = scene(old, t - starts[old], t)
             incoming = scene(new, t - start, t)
             a = Image.new("L", (W, H), 255)
@@ -143,7 +143,7 @@ def frame(t):
             a.paste(outgoing, (0, -round(48 * p)))
             b.paste(incoming, (0, round(48 * (1 - p))))
             return Image.blend(a, b, p)
-        if t >= start + 0.9:
+        if t >= start + 1.4:
             active = new
     return scene(active, t - starts[active], t)
 
@@ -165,7 +165,7 @@ def main():
     frame(0).convert("RGB").save(output / f"{name}-poster.webp", quality=95)
     previews = ROOT / ".promo-work" / "stills"
     previews.mkdir(parents=True, exist_ok=True)
-    for t in [0, 1, 3, 6, 10]:
+    for t in [0, 4, 8, 15, 21]:
         frame(t).save(previews / f"{name}-{t:02}.png")
     if args.stills_only:
         return

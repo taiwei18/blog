@@ -10,7 +10,7 @@
     loop
     playsinline
     preload="metadata"
-    poster="/media/taiwei-hero-poster.webp?v=5"
+    poster="/media/taiwei-hero-poster.webp?v=6"
     width="1440"
     height="800"
     aria-hidden="true"
@@ -18,15 +18,15 @@
     disablepictureinpicture
     disableRemotePlayback
   >
-    <source src="/media/taiwei-hero.mp4?v=5" type="video/mp4" />
+    <source src="/media/taiwei-hero.mp4?v=6" type="video/mp4" />
   </video>
   <picture class="hero-film-still">
     <source
       media="(max-width: 479px)"
-      srcset="/media/taiwei-hero-mobile-poster.webp?v=5"
+      srcset="/media/taiwei-hero-mobile-poster.webp?v=6"
     />
     <img
-      src="/media/taiwei-hero-poster.webp?v=5"
+      src="/media/taiwei-hero-poster.webp?v=6"
       width="1440"
       height="800"
       alt=""
@@ -61,11 +61,11 @@
 
       const chooseSource = () => {
         video.src = narrow.matches
-          ? '/media/taiwei-hero-mobile.mp4?v=5'
-          : '/media/taiwei-hero.mp4?v=5'
+          ? '/media/taiwei-hero-mobile.mp4?v=6'
+          : '/media/taiwei-hero.mp4?v=6'
         video.poster = narrow.matches
-          ? '/media/taiwei-hero-mobile-poster.webp?v=5'
-          : '/media/taiwei-hero-poster.webp?v=5'
+          ? '/media/taiwei-hero-mobile-poster.webp?v=6'
+          : '/media/taiwei-hero-poster.webp?v=6'
         this.classList.remove('is-playing')
         failed = false
         sync()
