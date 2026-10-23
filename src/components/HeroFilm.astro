@@ -1,0 +1,157 @@
+<hero-film class="hero-film">
+  <h1 id="hero-title" class="sr-only">深入技术，浅出文字。</h1>
+  <p class="sr-only">
+    在代码与原理之间，留下一些思考。把复杂的事，慢慢写清楚。
+  </p>
+  <video
+    class="hero-film-video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="/media/taiwei-hero-poster.webp?v=5"
+    width="1440"
+    height="800"
+    aria-hidden="true"
+    tabindex="-1"
+    disablepictureinpicture
+    disableRemotePlayback
+  >
+    <source src="/media/taiwei-hero.mp4?v=5" type="video/mp4" />
+  </video>
+  <picture class="hero-film-still">
+    <source
+      media="(max-width: 479px)"
+      srcset="/media/taiwei-hero-mobile-poster.webp?v=5"
+    />
+    <img
+      src="/media/taiwei-hero-poster.webp?v=5"
+      width="1440"
+      height="800"
+      alt=""
+      fetchpriority="high"
+    />
+  </picture>
+</hero-film>
+
+<script>
+  class HeroFilm extends HTMLElement {
+    private observer?: IntersectionObserver
+    private controller?: AbortController
+
+    connectedCallback() {
+      const video = this.querySelector('video')
+      if (!video) return
+      this.controller = new AbortController()
+      const { signal } = this.controller
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+      const narrow = matchMedia('(max-width: 479px)')
+      let visible = true
+      let failed = false
+      video.muted = true
+
+      const sync = () => {
+        if (reduced.matches || !visible || document.hidden || failed) {
+          video.pause()
+          return
+        }
+        void video.play().catch(() => this.classList.remove('is-playing'))
+      }
+
+      const chooseSource = () => {
+        video.src = narrow.matches
+          ? '/media/taiwei-hero-mobile.mp4?v=5'
+          : '/media/taiwei-hero.mp4?v=5'
+        video.poster = narrow.matches
+          ? '/media/taiwei-hero-mobile-poster.webp?v=5'
+          : '/media/taiwei-hero-poster.webp?v=5'
+        this.classList.remove('is-playing')
+        failed = false
+        sync()
+      }
+
+      video.addEventListener(
+        'playing',
+        () => this.classList.add('is-playing'),
+        { signal }
+      )
+      const fail = () => {
+        failed = true
+        this.classList.remove('is-playing')
+      }
+      video.addEventListener('error', fail, { signal })
+      video.querySelector('source')?.addEventListener('error', fail, { signal })
+      reduced.addEventListener('change', sync, { signal })
+      narrow.addEventListener('change', chooseSource, { signal })
+      document.addEventListener('visibilitychange', sync, { signal })
+      this.observer = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting
+        sync()
+      })
+      this.observer.observe(this)
+      chooseSource()
+    }
+
+    disconnectedCallback() {
+      this.querySelector('video')?.pause()
+      this.observer?.disconnect()
+      this.controller?.abort()
+    }
+  }
+
+  if (!customElements.get('hero-film'))
+    customElements.define('hero-film', HeroFilm)
+</script>
+
+<style>
+  .hero-film {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 9 / 5;
+    margin-top: 1.25rem;
+    isolation: isolate;
+    mix-blend-mode: multiply;
+  }
+
+  .hero-film-video,
+  .hero-film-still,
+  .hero-film-still img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @media (max-width: 479px) {
+    .hero-film {
+      aspect-ratio: 42 / 37;
+    }
+  }
+
+  .hero-film-still {
+    pointer-events: none;
+  }
+
+  .hero-film.is-playing .hero-film-still {
+    visibility: hidden;
+  }
+
+  :global([data-mode='dark']) .hero-film {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-film-video {
+      visibility: hidden;
+    }
+
+    .hero-film.is-playing .hero-film-still {
+      visibility: visible;
+    }
+  }
+</style>

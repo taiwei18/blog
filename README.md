@@ -45,6 +45,20 @@ pnpm test       # Vitest 单元测试
 
 > 开发模式下样式由 JS 注入，首屏可能出现短暂闪烁；动效与性能请以 `pnpm preview` 的生产构建为准。
 
+### 首页动态影像
+
+首页标题区域使用 `src/components/HeroFilm.astro` 播放本地静音循环视频，桌面与手机使用独立构图。资源位于 `public/media/taiwei-hero*.mp4`，时长 12 秒、60fps；0.8 秒开始首次转场，后续保留文案阅读时间。无播放控件，背景随明暗主题融合。减少动态效果、视频加载失败或自动播放受限时显示 WebP 封面。
+
+修改文案或动效可编辑 `scripts/render-hero.py`，然后用 Python、Pillow 和 FFmpeg 重新生成：
+
+```bash
+python -m pip install Pillow
+python scripts/render-hero.py --ffmpeg /path/to/ffmpeg
+python scripts/render-hero.py --mobile --ffmpeg /path/to/ffmpeg
+```
+
+脚本默认使用 Windows 的宋体、微软雅黑和 Consolas；字体路径由 `WINDIR` 环境变量定位。全部画面本地绘制，无外部素材。
+
 ## 写作
 
 - 站点标题、作者、导航、配色等在 `src/theme.config.ts` 中配置。
